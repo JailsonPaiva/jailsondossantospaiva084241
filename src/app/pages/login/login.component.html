@@ -1,0 +1,84 @@
+<div class="min-h-[calc(100vh-5rem)] flex flex-col items-center justify-center px-4 py-12">
+  <!-- Ícone + Título + Subtítulo -->
+  <div class="flex flex-col items-center mb-8">
+    <div class="flex items-center justify-center w-20 h-20 rounded-2xl bg-petrack mb-4">
+      <lucide-icon name="paw-print" class="text-white w-12 h-12" [size]="48" />
+    </div>
+    <h1 class="text-2xl font-bold text-petrack-dark">PeTrack MT</h1>
+    <p class="text-gray-600 mt-1">Acesse sua conta</p>
+  </div>
+
+  <!-- Card do formulário -->
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+    <h2 class="text-xl font-bold text-center text-gray-800">Entrar</h2>
+    <p class="text-sm text-gray-500 text-center mt-2 mb-6">Digite suas credenciais para acessar o sistema</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <lucide-icon name="mail" class="w-5 h-5" [size]="20" />
+          </span>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="admin"
+            class="w-full pl-10 pr-4 py-3 rounded-xl border border-petrack-light bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            autocomplete="email"
+          />
+        </div>
+        @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+          <p class="mt-1 text-sm text-red-600">Informe um email válido</p>
+        }
+      </div>
+
+      <!-- Senha -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">Senha</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <lucide-icon name="lock" class="w-5 h-5" [size]="20" />
+          </span>
+          <input
+            id="password"
+            [type]="hidePassword() ? 'password' : 'text'"
+            formControlName="password"
+            placeholder="••••••••"
+            class="w-full pl-10 pr-12 py-3 rounded-xl border border-petrack-light bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            (click)="togglePasswordVisibility()"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+            [attr.aria-label]="hidePassword() ? 'Mostrar senha' : 'Ocultar senha'"
+          >
+            @if (hidePassword()) {
+              <lucide-icon name="eye" class="w-5 h-5" [size]="20" />
+            } @else {
+              <lucide-icon name="eye-off" class="w-5 h-5" [size]="20" />
+            }
+          </button>
+        </div>
+        @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+          <p class="mt-1 text-sm text-red-600">Informe a senha</p>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="w-full py-3 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors focus:outline-none focus:ring-2 focus:ring-petrack focus:ring-offset-2"
+      >
+        Entrar
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-600 mt-6">
+      Não tem uma conta?
+      <a routerLink="/registro" class="text-petrack font-medium hover:underline ml-1">Registre-se</a>
+    </p>
+  </div>
+</div>

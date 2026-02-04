@@ -1,0 +1,32 @@
+<header class="bg-white border-b border-petrack-light/30 shadow-sm">
+  <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-20">
+    <!-- Logo + nome -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-petrack shrink-0">
+        <lucide-icon name="paw-print" class="text-white w-6 h-6" [size]="24" />
+      </div>
+      <div>
+        <span class="block text-lg font-semibold text-petrack-dark">PeTrack</span>
+        <span class="block text-xs text-gray-500">Mato Grosso</span>
+      </div>
+    </div>
+
+    <!-- Navegação central -->
+    <nav class="hidden sm:flex items-center gap-8">
+      <a routerLink="/" routerLinkActive="text-petrack font-medium" [routerLinkActiveOptions]="{ exact: true }" class="text-gray-700 hover:text-petrack transition-colors">Início</a>
+      <a routerLink="/pets" routerLinkActive="text-petrack font-medium" class="text-gray-700 hover:text-petrack transition-colors">Pets</a>
+      <a routerLink="/tutores" routerLinkActive="text-petrack font-medium" class="text-gray-700 hover:text-petrack transition-colors">Tutores</a>
+    </nav>
+
+    <!-- Status + Entrar -->
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-1.5 text-petrack text-sm">
+        <lucide-icon name="activity" class="w-4 h-4" [size]="16" />
+        <span>Online</span>
+      </div>
+      <a routerLink="/login" routerLinkActive="bg-petrack-dark" class="px-4 py-2 rounded-lg bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors">
+        Entrar
+      </a>
+    </div>
+  </div>
+</header>
