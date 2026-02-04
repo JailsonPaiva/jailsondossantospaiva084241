@@ -1,7 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -14,9 +15,13 @@ export class LoginComponent {
   loginForm: FormGroup;
   hidePassword = signal(true);
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    protected readonly auth: AuthService,
+    private router: Router
+  ) {
     this.loginForm = this.fb.nonNullable.group({
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', Validators.required],
       password: ['', Validators.required],
     });
   }
@@ -26,11 +31,17 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      // Integração com AuthService virá na Fase 2
-      console.log('Login', this.loginForm.getRawValue());
-    } else {
+    if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
+      return;
     }
+    const { username, password } = this.loginForm.getRawValue();
+    this.auth.login(username, password).subscribe({
+      next: (res) => {
+        if (res?.token ?? res?.accessToken) {
+          this.router.navigate(['/']);
+        }
+      },
+    });
   }
 }
