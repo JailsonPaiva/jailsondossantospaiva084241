@@ -1,6 +1,21 @@
 import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { LucideAngularModule, PawPrint, Activity, Mail, Lock, Eye, EyeOff } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  PawPrint,
+  Activity,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Users,
+  Search,
+  Dog,
+  Cat,
+  Bird,
+  Heart,
+  ArrowRight,
+} from 'lucide-angular';
 
 import { routes } from './app.routes';
 
@@ -9,7 +24,21 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     importProvidersFrom(
-      LucideAngularModule.pick({ PawPrint, Activity, Mail, Lock, Eye, EyeOff })
+      LucideAngularModule.pick({
+      PawPrint,
+      Activity,
+      Mail,
+      Lock,
+      Eye,
+      EyeOff,
+      Users,
+      Search,
+      Dog,
+      Cat,
+      Bird,
+      Heart,
+      ArrowRight,
+    })
     ),
   ],
 };

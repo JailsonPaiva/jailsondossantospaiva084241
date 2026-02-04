@@ -10,6 +10,10 @@ module.exports = {
           light: '#22c55e',
           pale: '#f0fdf4',
         },
+        orange: {
+          DEFAULT: '#EE862B',
+          light:  '#DA842E',
+        },
       },
     },
   },

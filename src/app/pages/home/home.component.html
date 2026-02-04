@@ -1,0 +1,145 @@
+<!-- Hero -->
+<section class="relative bg-petrack text-white overflow-hidden">
+  <div class="max-w-6xl mx-auto px-4 py-16 sm:py-24 text-center">
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight max-w-4xl mx-auto">
+      Registro Público de
+      <span class="text-orange">Pets</span>
+      e
+      <span class="text-orange">Tutores</span>
+    </h1>
+    <p class="mt-4 text-lg sm:text-xl text-white/90 max-w-2xl mx-auto">
+      Sistema oficial do Estado de Mato Grosso para cadastro e gerenciamento de animais de estimação e seus responsáveis.
+    </p>
+    <div class="mt-10 flex flex-wrap justify-center gap-4">
+      <a
+        routerLink="/pets"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange text-white font-medium hover:bg-orange-light transition-colors shadow-lg"
+      >
+        <lucide-icon name="paw-print" [size]="20" />
+        Ver Pets
+      </a>
+      <a
+        routerLink="/tutores"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-white bg-transparent text-white font-medium hover:bg-white/10 transition-colors"
+      >
+        <lucide-icon name="users" [size]="20" />
+        Ver Tutores
+      </a>
+    </div>
+  </div>
+  <!-- Onda na base do hero -->
+  <div class="absolute bottom-0 left-0 right-0 w-full leading-[0]">
+    <svg class="w-full h-12 sm:h-16 fill-petrack-pale" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 80V50c240 30 480 30 720 20s480-30 720-20v50H0z" />
+    </svg>
+  </div>
+</section>
+
+<!-- Estatísticas -->
+<section class="bg-petrack-pale py-12 sm:py-16">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      @for (stat of stats; track stat.label) {
+        <div class="bg-white rounded-2xl shadow-md p-6 text-center border border-gray-100">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-petrack/10 text-petrack mb-3">
+            <lucide-icon [name]="stat.icon" [size]="24" />
+          </div>
+          <p class="text-2xl sm:text-3xl font-bold text-gray-800">{{ stat.value }}</p>
+          <p class="text-gray-600 mt-1">{{ stat.label }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Funcionalidades -->
+<section class="py-12 sm:py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center">Funcionalidades do Sistema</h2>
+    <p class="text-gray-600 text-center mt-2 max-w-xl mx-auto">Tudo que você precisa para gerenciar o registro de pets</p>
+    <div class="mt-10 grid sm:grid-cols-3 gap-6">
+      @for (feature of features; track feature.title) {
+        <div class="bg-petrack-pale rounded-2xl p-6 border border-petrack-light/20">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-petrack text-white mb-4">
+            <lucide-icon [name]="feature.icon" [size]="24" />
+          </div>
+          <h3 class="text-lg font-semibold text-gray-800">{{ feature.title }}</h3>
+          <p class="text-gray-600 mt-2">{{ feature.description }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Pets Recentes -->
+<section class="py-12 sm:py-20 bg-petrack-pale">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Pets Recentes</h2>
+        <p class="text-gray-600 mt-1">Últimos pets cadastrados no sistema</p>
+      </div>
+      <a routerLink="/pets" class="inline-flex items-center gap-1 text-petrack font-medium hover:underline shrink-0">
+        Ver todos
+        <lucide-icon name="arrow-right" [size]="18" />
+      </a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+          <div class="aspect-square bg-gray-200"></div>
+          <div class="p-3 space-y-2">
+            <div class="h-3 bg-gray-200 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-100 rounded w-1/2"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- CTA Cadastre seu Pet -->
+<section class="py-12 sm:py-16 bg-petrack">
+  <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-8 text-white">
+    <div class="flex items-center gap-4 text-center sm:text-left">
+      <div class="hidden sm:flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 shrink-0">
+        <lucide-icon name="paw-print" [size]="32" />
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold">Cadastre seu Pet</h2>
+        <p class="mt-1 text-white/90">Mantenha as informações do seu animal de estimação sempre atualizadas no registro oficial.</p>
+      </div>
+    </div>
+    <a
+      routerLink="/pets"
+      class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange text-white font-medium hover:bg-orange-light transition-colors shrink-0"
+    >
+      Cadastrar Agora
+      <lucide-icon name="arrow-right" [size]="20" />
+    </a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-white border-t border-gray-200 py-10">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-petrack shrink-0">
+          <lucide-icon name="paw-print" class="text-white" [size]="24" />
+        </div>
+        <div>
+          <span class="block font-semibold text-petrack-dark">PeTrack MT</span>
+          <span class="block text-sm text-gray-500">Registro Público de Pets e Tutores</span>
+        </div>
+      </div>
+      <nav class="flex flex-wrap justify-center gap-6 text-gray-600">
+        <a href="#" class="hover:text-petrack transition-colors">Sobre</a>
+        <a href="#" class="hover:text-petrack transition-colors">Privacidade</a>
+        <a href="#" class="hover:text-petrack transition-colors">Termos de Uso</a>
+        <a href="#" class="hover:text-petrack transition-colors">Contato</a>
+      </nav>
+      <p class="text-sm text-gray-500 text-center md:text-right">© 2026 Feito com ❤️ em MT</p>
+    </div>
+  </div>
+</footer>
