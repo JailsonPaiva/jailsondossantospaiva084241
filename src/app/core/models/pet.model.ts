@@ -1,12 +1,10 @@
 export interface Pet {
   id: number;
   nome: string;
-  especie?: string;
+  idade?: string;
   raca?: string;
-  foto?: string;
-  dataNascimento?: string;
+  foto?: { url: string };
   tutorId?: number;
-  [key: string]: unknown;
 }
 
 export interface PetsPageResponse {

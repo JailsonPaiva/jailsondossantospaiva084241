@@ -7,4 +7,5 @@ export const API_ENDPOINTS = {
   login: '/autenticacao/login',
   refresh: '/autenticacao/refresh',
   pets: '/v1/pets',
+  tutores: '/v1/tutores',
 } as const;

@@ -79,7 +79,7 @@
             >
               <div class="aspect-square bg-gray-100 overflow-hidden">
                 @if (pet.foto) {
-                  <img [src]="pet.foto" [alt]="pet.nome" class="w-full h-full object-cover" />
+                  <img [src]="pet.foto.url" [alt]="pet.nome" class="w-full h-full object-cover" />
                 } @else {
                   <div class="w-full h-full flex items-center justify-center text-petrack/40">
                     <lucide-icon name="paw-print" [size]="48" />
@@ -87,8 +87,8 @@
                 }
               </div>
               <div class="p-3">
-                <p class="font-medium text-gray-800 truncate">{{ pet.nome }}</p>
-                <p class="text-sm text-gray-500 truncate">{{ pet.especie ?? '—' }}</p>
+                <p class="font-medium text-gray-800 truncate">{{ pet.nome }} {{ pet.idade ? pet.idade + ' anos' : 'Idade não informada' }} </p>
+                <p class="text-sm text-gray-500 truncate">{{ pet.raca ?? '—' }} </p>
               </div>
             </a>
           }
