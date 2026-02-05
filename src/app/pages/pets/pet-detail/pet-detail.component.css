@@ -1,1 +1,17 @@
 /* Pet detail layout */
+
+/* Destaque do nome do pet */
+.pet-name-hero {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--petrack-dark, #1a3a2e);
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+@media (min-width: 640px) {
+  .pet-name-hero {
+    font-size: 2.25rem;
+  }
+}

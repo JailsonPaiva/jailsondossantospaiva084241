@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, map, tap, catchError, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, tap, catchError, of, switchMap } from 'rxjs';
 import { Pet, PetsPageResponse } from '../../../core/models/pet.model';
 import { PetService, PetCreateUpdate } from '../services/pet.service';
+import { TutorService } from '../../tutores/services/tutor.service';
 
 const PAGE_SIZE = 10;
 
@@ -35,6 +36,7 @@ export class PetFacade {
 
   constructor(
     private readonly petService: PetService,
+    private readonly tutorService: TutorService,
     private readonly router: Router
   ) {}
 
@@ -117,8 +119,18 @@ export class PetFacade {
     this.petService
       .getById(id)
       .pipe(
+        switchMap((pet) => {
+          const tutorId = pet?.tutorId ?? pet?.tutor?.id;
+          if (pet && tutorId != null) {
+            return this.tutorService.getById(tutorId).pipe(
+              map((tutor) => ({ ...pet, tutor })),
+              catchError(() => of(pet))
+            );
+          }
+          return of(pet ?? null);
+        }),
         tap((pet) => {
-          this.selectedPetSubject.next(pet);
+          if (pet) this.selectedPetSubject.next(pet);
           this.loadingSubject.next(false);
         }),
         catchError((err) => {
