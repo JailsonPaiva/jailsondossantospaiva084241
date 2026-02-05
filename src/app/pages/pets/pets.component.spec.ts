@@ -10,6 +10,7 @@ describe('PetsComponent', () => {
   let fixture: ComponentFixture<PetsComponent>;
   let listSubject: BehaviorSubject<Pet[]>;
   let totalSubject: BehaviorSubject<number>;
+  let totalPagesSubject: BehaviorSubject<number>;
   let currentPageSubject: BehaviorSubject<number>;
   let loadPetsSpy: jasmine.Spy;
 
@@ -18,6 +19,7 @@ describe('PetsComponent', () => {
     loading$: new BehaviorSubject<boolean>(false),
     error$: new BehaviorSubject<string | null>(null),
     total$: new BehaviorSubject<number>(0),
+    totalPages$: new BehaviorSubject<number>(1),
     currentPage$: new BehaviorSubject<number>(0),
     loadPets: () => {},
     search: (_nome: string) => {},
@@ -27,9 +29,11 @@ describe('PetsComponent', () => {
   beforeEach(async () => {
     listSubject = new BehaviorSubject<Pet[]>([]);
     totalSubject = new BehaviorSubject<number>(0);
+    totalPagesSubject = new BehaviorSubject<number>(1);
     currentPageSubject = new BehaviorSubject<number>(0);
     (mockFacade as unknown as { list$: BehaviorSubject<Pet[]> }).list$ = listSubject;
     (mockFacade as unknown as { total$: BehaviorSubject<number> }).total$ = totalSubject;
+    (mockFacade as unknown as { totalPages$: BehaviorSubject<number> }).totalPages$ = totalPagesSubject;
     (mockFacade as unknown as { currentPage$: BehaviorSubject<number> }).currentPage$ = currentPageSubject;
     loadPetsSpy = spyOn(mockFacade, 'loadPets');
 
@@ -53,7 +57,7 @@ describe('PetsComponent', () => {
   });
 
   it('deve chamar facade.setPage ao goToPage com página 1-based', () => {
-    totalSubject.next(25);
+    totalPagesSubject.next(3);
     fixture.detectChanges();
     const setPageSpy = spyOn(mockFacade, 'setPage');
     component.goToPage(2);
@@ -67,8 +71,8 @@ describe('PetsComponent', () => {
     expect(searchSpy).toHaveBeenCalledWith('Rex');
   });
 
-  it('deve calcular totalPages a partir do total', () => {
-    totalSubject.next(25);
+  it('deve usar totalPages vindo da facade (API total/pageCount)', () => {
+    totalPagesSubject.next(3);
     fixture.detectChanges();
     expect(component.totalPages()).toBe(3);
   });

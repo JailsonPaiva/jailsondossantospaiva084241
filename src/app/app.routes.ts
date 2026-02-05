@@ -12,4 +12,5 @@ export const routes: Routes = [
   { path: 'tutores/:id', loadComponent: () => import('./pages/tutores/tutor-detail/tutor-detail.component').then((m) => m.TutorDetailComponent) },
   { path: 'tutores/:id/editar', loadComponent: () => import('./pages/tutores/tutor-form/tutor-form.component').then((m) => m.TutorFormComponent) },
   { path: 'login', loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent) },
+  { path: 'registro', loadComponent: () => import('./pages/registro/registro.component').then((m) => m.RegistroComponent) },
 ];

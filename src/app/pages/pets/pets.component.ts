@@ -28,7 +28,8 @@ export class PetsComponent implements OnInit {
   readonly pageSize = PAGE_SIZE;
   readonly total = signal(0);
   readonly currentPage0 = signal(0);
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
+  /** Número de páginas vindo da API (total/pageCount) ou calculado. */
+  readonly totalPages = signal(1);
   readonly currentPageDisplay = computed(() => this.currentPage0() + 1);
   readonly paginationStart = computed(() => {
     const total = this.total();
@@ -44,6 +45,7 @@ export class PetsComponent implements OnInit {
 
   ngOnInit(): void {
     this.petFacade.total$.subscribe((v) => this.total.set(v));
+    this.petFacade.totalPages$.subscribe((v) => this.totalPages.set(v));
     this.petFacade.currentPage$.subscribe((v) => this.currentPage0.set(v));
     this.petFacade.loadPets();
   }

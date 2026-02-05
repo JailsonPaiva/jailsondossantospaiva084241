@@ -1,0 +1,162 @@
+<div class="registro-page flex flex-col min-h-[calc(100vh-5rem)]">
+  <div class="flex flex-col items-center justify-center flex-1 px-4 py-12">
+    <!-- Ícone + Título + Subtítulo -->
+    <div class="flex flex-col items-center mb-8">
+      <div class="flex items-center justify-center w-20 h-20 rounded-2xl bg-petrack mb-4">
+        <lucide-icon name="paw-print" class="text-white w-12 h-12" [size]="48" />
+      </div>
+      <h1 class="text-2xl font-bold text-petrack-dark">PeTrack MT</h1>
+      <p class="text-gray-600 mt-1">Crie sua conta</p>
+    </div>
+
+    <!-- Card do formulário -->
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100 p-8 relative">
+      @if (auth.isLoading()) {
+        <div class="registro-loading-overlay" aria-busy="true" aria-live="polite">
+          <div class="registro-loading-spinner"></div>
+          <p class="text-petrack-dark font-medium mt-3">Cadastrando...</p>
+        </div>
+      }
+      <h2 class="text-xl font-bold text-center text-gray-800">Cadastro</h2>
+      <p class="text-sm text-gray-500 text-center mt-2 mb-6">Preencha os dados para criar sua conta</p>
+
+      @if (auth.error(); as errorMessage) {
+        <div class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="space-y-5">
+        <!-- Nome -->
+        <div>
+          <label for="nome" class="block text-sm font-medium text-gray-700 mb-1.5">Nome</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <lucide-icon name="user" class="w-5 h-5" [size]="20" />
+            </span>
+            <input
+              id="nome"
+              type="text"
+              formControlName="nome"
+              placeholder="Seu nome completo"
+              class="w-full pl-10 pr-4 py-3 rounded-xl border border-petrack-light bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+              autocomplete="name"
+            />
+          </div>
+          @if (registroForm.get('nome')?.invalid && registroForm.get('nome')?.touched) {
+            <p class="mt-1 text-sm text-red-600">
+              @if (registroForm.get('nome')?.errors?.['required']) {
+                Informe o nome
+              } @else if (registroForm.get('nome')?.errors?.['minlength']) {
+                Nome deve ter pelo menos 2 caracteres
+              }
+            </p>
+          }
+        </div>
+
+        <!-- E-mail -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">E-mail</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <lucide-icon name="mail" class="w-5 h-5" [size]="20" />
+            </span>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="seu@email.com"
+              class="w-full pl-10 pr-4 py-3 rounded-xl border border-petrack-light bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+              autocomplete="email"
+            />
+          </div>
+          @if (registroForm.get('email')?.invalid && registroForm.get('email')?.touched) {
+            <p class="mt-1 text-sm text-red-600">
+              @if (registroForm.get('email')?.errors?.['required']) {
+                Informe o e-mail
+              } @else if (registroForm.get('email')?.errors?.['email']) {
+                Informe um e-mail válido
+              }
+            </p>
+          }
+        </div>
+
+        <!-- Senha -->
+        <div>
+          <label for="senha" class="block text-sm font-medium text-gray-700 mb-1.5">Senha</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <lucide-icon name="lock" class="w-5 h-5" [size]="20" />
+            </span>
+            <input
+              id="senha"
+              [type]="hidePassword() ? 'password' : 'text'"
+              formControlName="senha"
+              placeholder="Mínimo 6 caracteres"
+              class="w-full pl-10 pr-12 py-3 rounded-xl border border-petrack-light bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+              [attr.aria-label]="hidePassword() ? 'Mostrar senha' : 'Ocultar senha'"
+            >
+              @if (hidePassword()) {
+                <lucide-icon name="eye" class="w-5 h-5" [size]="20" />
+              } @else {
+                <lucide-icon name="eye-off" class="w-5 h-5" [size]="20" />
+              }
+            </button>
+          </div>
+          @if (registroForm.get('senha')?.invalid && registroForm.get('senha')?.touched) {
+            <p class="mt-1 text-sm text-red-600">
+              @if (registroForm.get('senha')?.errors?.['required']) {
+                Informe a senha
+              } @else if (registroForm.get('senha')?.errors?.['minlength']) {
+                Senha deve ter pelo menos 6 caracteres
+              }
+            </p>
+          }
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="auth.isLoading()"
+          class="w-full py-3 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors focus:outline-none focus:ring-2 focus:ring-petrack focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {{ auth.isLoading() ? 'Cadastrando...' : 'Cadastrar' }}
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-gray-600 mt-6">
+        Já tem uma conta?
+        <a routerLink="/login" class="text-petrack font-medium hover:underline ml-1">Entrar</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-10 mt-auto shrink-0">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-petrack shrink-0">
+            <lucide-icon name="paw-print" class="text-white" [size]="24" />
+          </div>
+          <div>
+            <span class="block font-semibold text-petrack-dark">PeTrack MT</span>
+            <span class="block text-sm text-gray-500">Registro Público de Pets e Tutores</span>
+          </div>
+        </div>
+        <nav class="flex flex-wrap justify-center gap-6 text-gray-600">
+          <a href="#" class="hover:text-petrack transition-colors">Sobre</a>
+          <a href="#" class="hover:text-petrack transition-colors">Privacidade</a>
+          <a href="#" class="hover:text-petrack transition-colors">Termos de Uso</a>
+          <a href="#" class="hover:text-petrack transition-colors">Contato</a>
+        </nav>
+        <p class="text-sm text-gray-500 text-center md:text-right">© 2026 Feito com ❤️ em MT</p>
+      </div>
+    </div>
+  </footer>
+</div>

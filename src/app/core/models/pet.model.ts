@@ -13,7 +13,11 @@ export interface Pet {
 
 export interface PetsPageResponse {
   content?: Pet[];
+  /** Total de registros (API pode enviar como `total` ou `totalElements`) */
+  total?: number;
   totalElements?: number;
+  /** Número de páginas (API pode enviar como `pageCount` ou `totalPages`) */
+  pageCount?: number;
   totalPages?: number;
   size?: number;
   number?: number;

@@ -6,6 +6,7 @@ export const API_BASE_URL = 'https://pet-manager-api.geia.vip';
 export const API_ENDPOINTS = {
   login: '/autenticacao/login',
   refresh: '/autenticacao/refresh',
+  register: '/autenticacao/registro',
   pets: '/v1/pets',
   tutores: '/v1/tutores',
 } as const;

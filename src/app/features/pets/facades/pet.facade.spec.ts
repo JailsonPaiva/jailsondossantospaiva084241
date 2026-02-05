@@ -17,6 +17,8 @@ describe('PetFacade', () => {
 
   const mockPageResponse = {
     content: mockPets,
+    total: 2,
+    pageCount: 1,
     totalElements: 2,
     totalPages: 1,
     size: 10,
@@ -92,8 +94,28 @@ describe('PetFacade', () => {
     }, 50);
   });
 
-  it('deve expor totalPages calculado a partir do total', () => {
+  it('deve expor totalPages usando pageCount da API', () => {
     facade.loadPets();
-    expect(facade.totalPages).toBeGreaterThanOrEqual(1);
+    expect(facade.totalPages).toBe(1);
+  });
+
+  it('deve usar total e pageCount da API quando fornecidos', (done) => {
+    const responseComTotalPageCount = {
+      content: mockPets,
+      total: 25,
+      pageCount: 3,
+    };
+    petServiceSpy.getPets.and.returnValue(of(responseComTotalPageCount));
+    const totalValues: number[] = [];
+    const pageCountValues: number[] = [];
+    facade.total$.subscribe((v) => totalValues.push(v));
+    facade.pageCount$.subscribe((v) => pageCountValues.push(v));
+    facade.loadPets();
+    setTimeout(() => {
+      expect(totalValues[totalValues.length - 1]).toBe(25);
+      expect(pageCountValues[pageCountValues.length - 1]).toBe(3);
+      expect(facade.totalPages).toBe(3);
+      done();
+    }, 50);
   });
 });

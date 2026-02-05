@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, tap, catchError, of } from 'rxjs';
-import { Pet } from '../../../core/models/pet.model';
+import { BehaviorSubject, combineLatest, map, tap, catchError, of } from 'rxjs';
+import { Pet, PetsPageResponse } from '../../../core/models/pet.model';
 import { PetService, PetCreateUpdate } from '../services/pet.service';
 
 const PAGE_SIZE = 10;
@@ -12,6 +12,7 @@ export class PetFacade {
   private readonly loadingSubject = new BehaviorSubject<boolean>(false);
   private readonly errorSubject = new BehaviorSubject<string | null>(null);
   private readonly totalSubject = new BehaviorSubject<number>(0);
+  private readonly pageCountSubject = new BehaviorSubject<number>(1);
   private readonly currentPageSubject = new BehaviorSubject<number>(0);
   private readonly selectedPetSubject = new BehaviorSubject<Pet | null>(null);
   private readonly saveLoadingSubject = new BehaviorSubject<boolean>(false);
@@ -20,6 +21,11 @@ export class PetFacade {
   readonly loading$ = this.loadingSubject.asObservable();
   readonly error$ = this.errorSubject.asObservable();
   readonly total$ = this.totalSubject.asObservable();
+  readonly pageCount$ = this.pageCountSubject.asObservable();
+  /** Número de páginas (vindo da API quando disponível). */
+  readonly totalPages$ = combineLatest([this.total$, this.pageCount$]).pipe(
+    map(() => this.totalPages)
+  );
   readonly currentPage$ = this.currentPageSubject.asObservable();
   readonly selectedPet$ = this.selectedPetSubject.asObservable();
   readonly saveLoading$ = this.saveLoadingSubject.asObservable();
@@ -60,12 +66,17 @@ export class PetFacade {
       })
       .pipe(
         tap((res) => {
-          const content = Array.isArray(res) ? res : (res as { content?: Pet[] }).content ?? [];
+          const content = Array.isArray(res) ? res : (res as PetsPageResponse).content ?? [];
+          const payload = Array.isArray(res) ? null : (res as PetsPageResponse);
           const total = Array.isArray(res)
             ? res.length
-            : (res as { totalElements?: number }).totalElements ?? content.length;
+            : (payload!.total ?? payload!.totalElements ?? content.length);
+          const pageCount = payload
+            ? (payload.pageCount ?? payload.totalPages ?? Math.max(1, Math.ceil(total / PAGE_SIZE)))
+            : Math.max(1, Math.ceil(total / PAGE_SIZE));
           this.listSubject.next(content);
           this.totalSubject.next(total);
+          this.pageCountSubject.next(pageCount);
           this.currentPageSubject.next(this._currentPage);
           this.loadingSubject.next(false);
         }),
@@ -91,7 +102,10 @@ export class PetFacade {
     this.loadPets();
   }
 
+  /** Número de páginas: usa pageCount da API quando disponível, senão calcula a partir do total. */
   get totalPages(): number {
+    const pageCount = this.pageCountSubject.value;
+    if (pageCount > 0) return pageCount;
     const total = this.totalSubject.value;
     return Math.max(1, Math.ceil(total / PAGE_SIZE));
   }

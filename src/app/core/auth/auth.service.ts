@@ -10,6 +10,12 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  nome: string;
+  email: string;
+  senha: string;
+}
+
 export interface LoginResponse {
   token?: string;
   accessToken?: string;
@@ -105,6 +111,34 @@ export class AuthService {
           err?.message ??
           'Falha ao entrar. Verifique usuário e senha.';
         const text = typeof message === 'string' ? message : 'Ocorreu um erro ao fazer login.';
+        this.errorSignal.set(text);
+        this.toast.showError(text);
+        return of(err);
+      })
+    );
+  }
+
+  register(nome: string, email: string, senha: string): Observable<unknown> {
+    this.errorSignal.set(null);
+    this.loadingSignal.set(true);
+
+    const body: RegisterRequest = { nome, email, senha };
+    const url = `${API_BASE_URL}${API_ENDPOINTS.register}`;
+
+    return this.http.post<unknown>(url, body).pipe(
+      tap(() => {
+        this.loadingSignal.set(false);
+        this.toast.showSuccess('Conta criada com sucesso! Faça login para continuar.');
+        this.router.navigate(['/login']);
+      }),
+      catchError((err) => {
+        this.loadingSignal.set(false);
+        const message =
+          err?.error?.message ??
+          err?.error?.error ??
+          err?.message ??
+          'Falha ao cadastrar. Tente novamente.';
+        const text = typeof message === 'string' ? message : 'Ocorreu um erro ao criar a conta.';
         this.errorSignal.set(text);
         this.toast.showError(text);
         return of(err);
