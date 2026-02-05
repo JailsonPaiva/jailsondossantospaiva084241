@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { Subject, takeUntil } from 'rxjs';
 import { PetFacade } from '../../features/pets/facades/pet.facade';
 import { Pet } from '../../core/models/pet.model';
 
@@ -16,44 +15,37 @@ const PAGE_SIZE = 10;
   templateUrl: './pets.component.html',
   styleUrl: './pets.component.css',
 })
-export class PetsComponent implements OnInit, OnDestroy {
+export class PetsComponent implements OnInit {
   private readonly petFacade = inject(PetFacade);
-  private readonly destroy$ = new Subject<void>();
 
   readonly searchInput = signal('');
-  readonly list = signal<Pet[]>([]);
   readonly list$ = this.petFacade.list$;
   readonly loading$ = this.petFacade.loading$;
   readonly error$ = this.petFacade.error$;
+  readonly total$ = this.petFacade.total$;
+  readonly currentPage$ = this.petFacade.currentPage$;
 
   readonly pageSize = PAGE_SIZE;
-  readonly currentPage = signal(1);
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.list().length / this.pageSize)));
-  readonly paginatedList = computed(() => {
-    const items = this.list();
-    const page = this.currentPage();
-    const start = (page - 1) * this.pageSize;
-    return items.slice(start, start + this.pageSize);
+  readonly total = signal(0);
+  readonly currentPage0 = signal(0);
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
+  readonly currentPageDisplay = computed(() => this.currentPage0() + 1);
+  readonly paginationStart = computed(() => {
+    const total = this.total();
+    if (total === 0) return 0;
+    return this.currentPage0() * this.pageSize + 1;
   });
-  readonly paginationStart = computed(() => (this.currentPage() - 1) * this.pageSize + 1);
   readonly paginationEnd = computed(() =>
-    Math.min(this.currentPage() * this.pageSize, this.list().length)
+    Math.min((this.currentPage0() + 1) * this.pageSize, this.total())
   );
   readonly pageNumbers = computed(() =>
     Array.from({ length: this.totalPages() }, (_, i) => i + 1)
   );
 
   ngOnInit(): void {
-    this.petFacade.list$.pipe(takeUntil(this.destroy$)).subscribe((items) => {
-      this.list.set(items);
-      this.currentPage.set(1);
-    });
+    this.petFacade.total$.subscribe((v) => this.total.set(v));
+    this.petFacade.currentPage$.subscribe((v) => this.currentPage0.set(v));
     this.petFacade.loadPets();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   onSearch(): void {
@@ -64,7 +56,9 @@ export class PetsComponent implements OnInit, OnDestroy {
     return pet.id;
   }
 
-  goToPage(page: number): void {
-    this.currentPage.set(Math.max(1, Math.min(page, this.totalPages())));
+  /** pageDisplay: número 1-based exibido ao usuário */
+  goToPage(pageDisplay: number): void {
+    const page0 = Math.max(0, Math.min(pageDisplay - 1, this.totalPages() - 1));
+    this.petFacade.setPage(page0);
   }
 }

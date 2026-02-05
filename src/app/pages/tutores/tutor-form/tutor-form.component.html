@@ -1,0 +1,95 @@
+<div class="tutor-form flex flex-col min-h-[calc(100vh-5rem)]">
+  <div class="flex-1 bg-petrack-pale">
+    <div class="max-w-xl mx-auto px-4 py-8">
+      <a
+        routerLink="/tutores"
+        class="inline-flex items-center gap-2 text-gray-600 hover:text-petrack mb-6"
+      >
+        <lucide-icon name="arrow-left" [size]="20" />
+        Voltar aos Tutores
+      </a>
+
+      <h1 class="text-2xl font-bold text-petrack-dark mb-6">{{ title() }}</h1>
+
+      @if (error$ | async; as error) {
+        <div class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          {{ error }}
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" class="bg-white rounded-xl shadow-md border border-gray-100 p-6 space-y-4">
+        <div>
+          <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+          <input
+            id="nome"
+            type="text"
+            [(ngModel)]="nome"
+            name="nome"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="Nome do tutor"
+          />
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="email@exemplo.com"
+          />
+        </div>
+        <div>
+          <label for="telefone" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+          <input
+            id="telefone"
+            type="text"
+            [(ngModel)]="telefone"
+            name="telefone"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="(65) 99999-9999"
+          />
+        </div>
+        <div>
+          <label for="endereco" class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+          <input
+            id="endereco"
+            type="text"
+            [(ngModel)]="endereco"
+            name="endereco"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="Endereço completo"
+          />
+        </div>
+        <div>
+          <label for="cpf" class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+          <input
+            id="cpf"
+            type="number"
+            [(ngModel)]="cpf"
+            name="cpf"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="Apenas números"
+          />
+        </div>
+        <div class="pt-4 flex gap-3">
+          <button
+            type="submit"
+            [disabled]="saveLoading$ | async"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark disabled:opacity-50"
+          >
+            <lucide-icon name="save" [size]="18" />
+            {{ isEdit() ? 'Salvar' : 'Cadastrar' }}
+          </button>
+          <a
+            routerLink="/tutores"
+            class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
+            Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

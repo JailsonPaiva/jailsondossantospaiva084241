@@ -89,6 +89,21 @@
             }
           },
           "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "tsconfig.spec.json",
+            "styles": ["src/styles.css"],
+            "scripts": [],
+            "assets": [{ "glob": "**/*", "input": "public" }]
+          },
+          "configurations": {
+            "watch": {
+              "watch": true
+            }
+          }
         }
       }
     }

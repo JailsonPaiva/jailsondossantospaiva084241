@@ -11,22 +11,49 @@
       </div>
     </div>
 
-    <!-- Navegação central -->
-    <nav class="hidden sm:flex items-center gap-8">
-      <a routerLink="/" routerLinkActive="text-petrack font-medium" [routerLinkActiveOptions]="{ exact: true }" class="text-gray-700 hover:text-petrack transition-colors">Início</a>
-      <a routerLink="/pets" routerLinkActive="text-petrack font-medium" class="text-gray-700 hover:text-petrack transition-colors">Pets</a>
-      <a routerLink="/tutores" routerLinkActive="text-petrack font-medium" class="text-gray-700 hover:text-petrack transition-colors">Tutores</a>
+    <!-- Navegação central (página selecionada com destaque e hover) -->
+    <nav class="hidden sm:flex items-center gap-1">
+      <a
+        routerLink="/"
+        routerLinkActive="nav-link-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link"
+      >
+        Início
+      </a>
+      <a routerLink="/pets" routerLinkActive="nav-link-active" class="nav-link">Pets</a>
+      <a routerLink="/tutores" routerLinkActive="nav-link-active" class="nav-link">Tutores</a>
     </nav>
 
-    <!-- Status + Entrar -->
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-1.5 text-petrack text-sm">
-        <lucide-icon name="activity" class="w-4 h-4" [size]="16" />
-        <span>Online</span>
-      </div>
-      <a routerLink="/login" routerLinkActive="bg-petrack-dark" class="px-4 py-2 rounded-lg bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors">
-        Entrar
-      </a>
+    <!-- Autenticado: foto + Sair | Não autenticado: Entrar (sem status Online) -->
+    <div class="flex items-center gap-3">
+      @if (auth.isAuthenticated()) {
+        <div
+          class="w-9 h-9 rounded-full border-2 border-petrack/20 overflow-hidden shrink-0 flex items-center justify-center bg-petrack-light"
+          aria-hidden="true"
+        >
+          @if (auth.userPhoto(); as photoUrl) {
+            <img [src]="photoUrl" alt="Foto do usuário" class="w-full h-full object-cover" />
+          } @else {
+            <lucide-icon name="user" class="text-petrack" [size]="20" />
+          }
+        </div>
+        <button
+          type="button"
+          (click)="logout()"
+          class="px-4 py-2 rounded-lg bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors"
+        >
+          Sair
+        </button>
+      } @else {
+        <a
+          routerLink="/login"
+          routerLinkActive="bg-petrack-dark"
+          class="px-4 py-2 rounded-lg bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors"
+        >
+          Entrar
+        </a>
+      }
     </div>
   </div>
 </header>

@@ -1,3 +1,29 @@
 :host {
   display: block;
 }
+
+/* Links da navegação: base e hover (cores alinhadas ao tema petrack) */
+.nav-link {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: #374151;
+  font-weight: 500;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.nav-link:hover {
+  color: #166534;
+  background-color: rgb(34 197 94 / 0.1);
+}
+
+/* Página selecionada: destaque visível + hover */
+.nav-link-active {
+  color: #166534;
+  background-color: rgb(34 197 94 / 0.15);
+  font-weight: 600;
+}
+
+.nav-link-active:hover {
+  background-color: rgb(34 197 94 / 0.22);
+  color: #14532d;
+}

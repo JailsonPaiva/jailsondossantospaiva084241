@@ -22,13 +22,13 @@
             class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrack-light focus:border-petrack"
           />
         </div>
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors shrink-0"
-        >
-          <lucide-icon name="plus" [size]="20" />
-          Novo Tutor
-        </button>
+        <a
+            routerLink="/tutores/novo"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors shrink-0"
+          >
+            <lucide-icon name="plus" [size]="20" />
+            Novo Tutor
+          </a>
       </div>
 
       <!-- Erro -->
@@ -52,11 +52,12 @@
           }
         </div>
       } @else {
-        <!-- Lista de tutores -->
+        <!-- Lista de tutores (server-side pagination) -->
         <div class="space-y-3">
-          @for (tutor of paginatedList(); track trackByTutorId($index, tutor)) {
-            <div
-              class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
+          @for (tutor of list$ | async; track trackByTutorId($index, tutor)) {
+            <a
+              [routerLink]="['/tutores', tutor.id]"
+              class="block bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
             >
               <div class="w-14 h-14 rounded-full bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
                 @if (tutor.foto?.url) {
@@ -69,11 +70,11 @@
                 <p class="font-medium text-gray-800 truncate">{{ tutor.nome }}</p>
                 <p class="text-sm text-gray-500 truncate">{{ tutor.email || tutor.telefone || '—' }}</p>
               </div>
-            </div>
+            </a>
           }
         </div>
 
-        @if (!(loading$ | async) && list().length === 0) {
+        @if (!(loading$ | async) && (list$ | async)?.length === 0) {
           <div class="text-center py-12 text-gray-500">
             <lucide-icon name="users" class="mx-auto text-gray-300 mb-4" [size]="48" />
             <p>Nenhum tutor encontrado.</p>
@@ -81,18 +82,18 @@
           </div>
         }
 
-        <!-- Paginação (sempre ao final da listagem quando há itens) -->
-        @if (!(loading$ | async) && list().length > 0) {
+        <!-- Paginação server-side -->
+        @if (!(loading$ | async) && total() > 0) {
           <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-6">
             <p class="text-sm text-gray-600">
-              Mostrando {{ paginationStart() }}–{{ paginationEnd() }} de {{ list().length }} tutores
-              <span class="text-gray-500 font-medium"> · Página {{ currentPage() }} de {{ totalPages() }}</span>
+              Mostrando {{ paginationStart() }}–{{ paginationEnd() }} de {{ total() }} tutores
+              <span class="text-gray-500 font-medium"> · Página {{ currentPageDisplay() }} de {{ totalPages() }}</span>
             </p>
             <div class="flex items-center gap-2">
               <button
                 type="button"
-                [disabled]="currentPage() <= 1"
-                (click)="goToPage(currentPage() - 1)"
+                [disabled]="currentPageDisplay() <= 1"
+                (click)="goToPage(currentPageDisplay() - 1)"
                 class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Anterior
@@ -110,14 +111,14 @@
                     type="button"
                     (click)="goToPage(p)"
                     class="min-w-[2.25rem] px-3 py-2 rounded-lg border text-sm font-medium transition-colors"
-                    [class.border-petrack]="currentPage() === p"
-                    [class.bg-petrack]="currentPage() === p"
-                    [class.text-white]="currentPage() === p"
-                    [class.border-gray-200]="currentPage() !== p"
-                    [class.bg-white]="currentPage() !== p"
-                    [class.text-gray-700]="currentPage() !== p"
-                    [class.hover:bg-gray-50]="currentPage() !== p"
-                    [attr.aria-current]="currentPage() === p ? 'page' : null"
+                    [class.border-petrack]="currentPageDisplay() === p"
+                    [class.bg-petrack]="currentPageDisplay() === p"
+                    [class.text-white]="currentPageDisplay() === p"
+                    [class.border-gray-200]="currentPageDisplay() !== p"
+                    [class.bg-white]="currentPageDisplay() !== p"
+                    [class.text-gray-700]="currentPageDisplay() !== p"
+                    [class.hover:bg-gray-50]="currentPageDisplay() !== p"
+                    [attr.aria-current]="currentPageDisplay() === p ? 'page' : null"
                   >
                     {{ p }}
                   </button>
@@ -125,8 +126,8 @@
               }
               <button
                 type="button"
-                [disabled]="currentPage() >= totalPages()"
-                (click)="goToPage(currentPage() + 1)"
+                [disabled]="currentPageDisplay() >= totalPages()"
+                (click)="goToPage(currentPageDisplay() + 1)"
                 class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Próximo

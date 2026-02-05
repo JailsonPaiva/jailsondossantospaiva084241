@@ -1,0 +1,96 @@
+<div class="pet-detail flex flex-col min-h-[calc(100vh-5rem)]">
+  <div class="flex-1 bg-petrack-pale">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+      <a
+        routerLink="/pets"
+        class="inline-flex items-center gap-2 text-gray-600 hover:text-petrack mb-6"
+      >
+        <lucide-icon name="arrow-left" [size]="20" />
+        Voltar aos Pets
+      </a>
+
+      @if (error$ | async; as error) {
+        <div class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          {{ error }}
+        </div>
+      }
+
+      @if (loading$ | async) {
+        <div class="bg-white rounded-xl shadow-md p-8 animate-pulse">
+          <div class="aspect-square max-w-xs mx-auto bg-gray-200 rounded-xl mb-6"></div>
+          <div class="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+          <div class="h-4 bg-gray-100 rounded w-2/3 mb-2"></div>
+          <div class="h-4 bg-gray-100 rounded w-1/2"></div>
+        </div>
+      } @else if (selectedPet$ | async; as pet) {
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+          <div class="relative aspect-square max-w-md mx-auto bg-gray-100">
+            @if (pet.foto?.url) {
+              <img [src]="pet.foto?.url" [alt]="pet.nome ?? ''" class="w-full h-full object-cover" />
+            } @else {
+              <div class="w-full h-full flex items-center justify-center text-petrack/40">
+                <lucide-icon name="paw-print" [size]="80" />
+              </div>
+            }
+            @if (petId !== null) {
+              <label
+                class="absolute bottom-3 right-3 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 shadow border border-gray-200 cursor-pointer hover:bg-gray-50"
+              >
+                <lucide-icon name="camera" [size]="18" />
+                <span>Enviar foto</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  (change)="onPhotoSelected($event)"
+                />
+              </label>
+            }
+          </div>
+          <div class="p-6">
+            <h1 class="text-2xl font-bold text-petrack-dark mb-4">{{ pet.nome ?? 'Sem nome' }}</h1>
+            <dl class="space-y-3 text-sm">
+              <div>
+                <dt class="text-gray-500">Espécie / Raça</dt>
+                <dd class="font-medium text-gray-800">{{ pet.especie ?? pet.raca ?? '—' }}</dd>
+              </div>
+              <div>
+                <dt class="text-gray-500">Idade</dt>
+                <dd class="font-medium text-gray-800">{{ pet.idade ? pet.idade + ' anos' : '—' }}</dd>
+              </div>
+              @if (pet.tutor) {
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                  <dt class="text-gray-500 mb-2">Tutor</dt>
+                  <dd class="font-medium text-gray-800">{{ pet.tutor.nome ?? 'Não informado' }}</dd>
+                  @if (pet.tutor.telefone) {
+                    <dd class="text-gray-600 mt-1">{{ pet.tutor.telefone }}</dd>
+                  }
+                  @if (pet.tutor.email) {
+                    <dd class="text-gray-600">{{ pet.tutor.email }}</dd>
+                  }
+                  @if (pet.tutor.endereco) {
+                    <dd class="text-gray-600">{{ pet.tutor.endereco }}</dd>
+                  }
+                </div>
+              }
+            </dl>
+            @if (petId !== null) {
+              <a
+                [routerLink]="['/pets', petId, 'editar']"
+                class="mt-6 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark"
+              >
+                <lucide-icon name="save" [size]="18" />
+                Editar pet
+              </a>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="text-center py-12 text-gray-500">
+          <p>Pet não encontrado.</p>
+          <a routerLink="/pets" class="text-petrack hover:underline mt-2 inline-block">Voltar à listagem</a>
+        </div>
+      }
+    </div>
+  </div>
+</div>

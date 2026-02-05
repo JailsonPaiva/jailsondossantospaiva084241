@@ -16,9 +16,12 @@ import {
   Bird,
   Heart,
   ArrowRight,
+  ArrowLeft,
   User,
   Filter,
   Plus,
+  Camera,
+  Save,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -47,6 +50,9 @@ export const appConfig: ApplicationConfig = {
       User,
       Filter,
       Plus,
+      ArrowLeft,
+      Camera,
+      Save,
     })
     ),
   ],

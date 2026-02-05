@@ -1,0 +1,125 @@
+<div class="tutor-detail flex flex-col min-h-[calc(100vh-5rem)]">
+  <div class="flex-1 bg-petrack-pale">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+      <a
+        routerLink="/tutores"
+        class="inline-flex items-center gap-2 text-gray-600 hover:text-petrack mb-6"
+      >
+        <lucide-icon name="arrow-left" [size]="20" />
+        Voltar aos Tutores
+      </a>
+
+      @if (error$ | async; as error) {
+        <div class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          {{ error }}
+        </div>
+      }
+
+      @if (loading$ | async) {
+        <div class="bg-white rounded-xl shadow-md p-8 animate-pulse">
+          <div class="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
+          <div class="h-4 bg-gray-100 rounded w-2/3 mb-2"></div>
+          <div class="h-4 bg-gray-100 rounded w-1/2"></div>
+        </div>
+      } @else if (selectedTutor$ | async; as tutor) {
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
+          <div class="p-6 flex flex-wrap items-start gap-4">
+            @if (tutor.foto?.url) {
+              <img [src]="tutor.foto?.url" [alt]="tutor.nome" class="w-24 h-24 rounded-full object-cover shrink-0" />
+            } @else {
+              <div class="w-24 h-24 rounded-full bg-petrack-light flex items-center justify-center shrink-0">
+                <lucide-icon name="user" class="text-petrack" [size]="40" />
+              </div>
+            }
+            <div class="min-w-0 flex-1">
+              <h1 class="text-2xl font-bold text-petrack-dark">{{ tutor.nome }}</h1>
+              @if (tutor.email) {
+                <p class="text-gray-600 mt-1">{{ tutor.email }}</p>
+              }
+              @if (tutor.telefone) {
+                <p class="text-gray-600">{{ tutor.telefone }}</p>
+              }
+              @if (tutor.endereco) {
+                <p class="text-gray-600 text-sm mt-1">{{ tutor.endereco }}</p>
+              }
+            </div>
+            @if (tutorId !== null) {
+              <a
+                [routerLink]="['/tutores', tutorId, 'editar']"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark"
+              >
+                <lucide-icon name="save" [size]="18" />
+                Editar
+              </a>
+            }
+          </div>
+        </div>
+
+        <!-- Pets do tutor -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+          <h2 class="text-lg font-semibold text-petrack-dark mb-4">Pets vinculados</h2>
+
+          <!-- Vincular pet (ID) -->
+          @if (tutorId !== null) {
+            <div class="flex gap-2 mb-6">
+              <input
+                type="number"
+                [ngModel]="petIdToLink()"
+                (ngModelChange)="petIdToLink.set($event)"
+                placeholder="ID do pet para vincular"
+                class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+              />
+              <button
+                type="button"
+                (click)="onLinkPet()"
+                class="px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark shrink-0"
+              >
+                Vincular pet
+              </button>
+            </div>
+          }
+
+          <ul class="space-y-3">
+            @for (pet of tutorPets$ | async; track trackByPetId($index, pet)) {
+              <li
+                class="flex items-center justify-between gap-4 p-3 rounded-xl border border-gray-100 hover:bg-gray-50"
+              >
+                <a [routerLink]="['/pets', pet.id]" class="min-w-0 flex-1 flex items-center gap-3">
+                  @if (pet.foto?.url) {
+                    <img [src]="pet.foto?.url" [alt]="pet.nome ?? ''" class="w-12 h-12 rounded-lg object-cover shrink-0" />
+                  } @else {
+                    <div class="w-12 h-12 rounded-lg bg-petrack-light flex items-center justify-center shrink-0">
+                      <lucide-icon name="paw-print" class="text-petrack" [size]="24" />
+                    </div>
+                  }
+                  <div class="min-w-0">
+                    <p class="font-medium text-gray-800 truncate">{{ pet.nome ?? 'Sem nome' }}</p>
+                    <p class="text-sm text-gray-500">{{ pet.especie ?? pet.raca ?? '—' }}</p>
+                  </div>
+                </a>
+                @if (tutorId !== null) {
+                  <button
+                    type="button"
+                    (click)="onUnlinkPet(pet.id)"
+                    class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 text-sm hover:bg-red-50 shrink-0"
+                  >
+                    Desvincular
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+
+          @if ((tutorPets$ | async)?.length === 0) {
+            <p class="text-gray-500 text-sm py-4">Nenhum pet vinculado. Use o campo acima para vincular pelo ID do pet.</p>
+          }
+        </div>
+      } @else {
+        <div class="text-center py-12 text-gray-500">
+          <p>Tutor não encontrado.</p>
+          <a routerLink="/tutores" class="text-petrack hover:underline mt-2 inline-block">Voltar à listagem</a>
+        </div>
+      }
+    </div>
+  </div>
+</div>

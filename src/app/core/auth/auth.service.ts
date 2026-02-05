@@ -43,14 +43,17 @@ function extractAccessToken(res: LoginResponse | null): string | null {
 
 const TOKEN_KEY = 'petrack_token';
 const REFRESH_TOKEN_KEY = 'petrack_refresh_token';
+const USER_PHOTO_KEY = 'petrack_user_photo';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly tokenSignal = signal<string | null>(this.getStoredToken());
+  private readonly userPhotoSignal = signal<string | null>(this.getStoredUserPhoto());
   private readonly loadingSignal = signal(false);
   private readonly errorSignal = signal<string | null>(null);
 
   readonly token = this.tokenSignal.asReadonly();
+  readonly userPhoto = this.userPhotoSignal.asReadonly();
   readonly isLoading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
@@ -75,6 +78,13 @@ export class AuthService {
         if (accessToken) {
           this.tokenSignal.set(accessToken);
           this.setStoredToken(accessToken);
+          const photo = (res as LoginResponse & { user?: { photo?: string; avatar?: string; foto?: string } })?.user?.photo
+            ?? (res as LoginResponse & { user?: { photo?: string; avatar?: string; foto?: string } })?.user?.avatar
+            ?? (res as LoginResponse & { user?: { photo?: string; avatar?: string; foto?: string } })?.user?.foto;
+          if (typeof photo === 'string') {
+            this.userPhotoSignal.set(photo);
+            localStorage.setItem(USER_PHOTO_KEY, photo);
+          }
           const refresh =
             res.refreshToken ??
             res.refresh_token ??
@@ -104,13 +114,59 @@ export class AuthService {
 
   logout(): void {
     this.tokenSignal.set(null);
+    this.userPhotoSignal.set(null);
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(USER_PHOTO_KEY);
     this.router.navigate(['/login']);
+  }
+
+  /** Define a foto do usuário (ex.: após carregar perfil). */
+  setUserPhoto(url: string | null): void {
+    this.userPhotoSignal.set(url);
+    if (url) localStorage.setItem(USER_PHOTO_KEY, url);
+    else localStorage.removeItem(USER_PHOTO_KEY);
   }
 
   getToken(): string | null {
     return this.tokenSignal();
+  }
+
+  /** Refresh token armazenado (localStorage). Usado pelo interceptor em 401. */
+  getStoredRefreshToken(): string | null {
+    if (typeof localStorage === 'undefined') return null;
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+
+  /**
+   * Atualiza o access token usando PUT /autenticacao/refresh.
+   * Retorna a resposta em caso de sucesso; em falha retorna null (ou o observable completa em erro).
+   */
+  refreshToken(): Observable<LoginResponse | null> {
+    const refreshToken = this.getStoredRefreshToken();
+    if (!refreshToken?.trim()) {
+      return of(null);
+    }
+    const url = `${API_BASE_URL}${API_ENDPOINTS.refresh}`;
+    return this.http.put<LoginResponse>(url, { refreshToken }).pipe(
+      tap((res) => {
+        const accessToken = extractAccessToken(res);
+        if (accessToken) {
+          this.tokenSignal.set(accessToken);
+          this.setStoredToken(accessToken);
+        }
+        const newRefresh =
+          res.refreshToken ??
+          res.refresh_token ??
+          (res.data && typeof res.data === 'object'
+            ? (res.data.refreshToken ?? res.data.refresh_token ?? null)
+            : null);
+        if (typeof newRefresh === 'string') {
+          localStorage.setItem(REFRESH_TOKEN_KEY, newRefresh);
+        }
+      }),
+      catchError(() => of(null))
+    );
   }
 
   private getStoredToken(): string | null {
@@ -120,5 +176,10 @@ export class AuthService {
 
   private setStoredToken(token: string): void {
     localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  private getStoredUserPhoto(): string | null {
+    if (typeof localStorage === 'undefined') return null;
+    return localStorage.getItem(USER_PHOTO_KEY);
   }
 }

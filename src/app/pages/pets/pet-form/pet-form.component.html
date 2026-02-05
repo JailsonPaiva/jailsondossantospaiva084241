@@ -1,0 +1,95 @@
+<div class="pet-form flex flex-col min-h-[calc(100vh-5rem)]">
+  <div class="flex-1 bg-petrack-pale">
+    <div class="max-w-xl mx-auto px-4 py-8">
+      <a
+        routerLink="/pets"
+        class="inline-flex items-center gap-2 text-gray-600 hover:text-petrack mb-6"
+      >
+        <lucide-icon name="arrow-left" [size]="20" />
+        Voltar aos Pets
+      </a>
+
+      <h1 class="text-2xl font-bold text-petrack-dark mb-6">{{ title() }}</h1>
+
+      @if (error$ | async; as error) {
+        <div class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          {{ error }}
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" class="bg-white rounded-xl shadow-md border border-gray-100 p-6 space-y-4">
+        <div>
+          <label for="nome" class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+          <input
+            id="nome"
+            type="text"
+            [(ngModel)]="nome"
+            name="nome"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="Nome do pet"
+          />
+        </div>
+        <div>
+          <label for="especie" class="block text-sm font-medium text-gray-700 mb-1">Espécie</label>
+          <input
+            id="especie"
+            type="text"
+            [(ngModel)]="especie"
+            name="especie"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="Ex: Cão, Gato"
+          />
+        </div>
+        <div>
+          <label for="raca" class="block text-sm font-medium text-gray-700 mb-1">Raça</label>
+          <input
+            id="raca"
+            type="text"
+            [(ngModel)]="raca"
+            name="raca"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="Raça"
+          />
+        </div>
+        <div>
+          <label for="idade" class="block text-sm font-medium text-gray-700 mb-1">Idade (anos)</label>
+          <input
+            id="idade"
+            type="text"
+            [(ngModel)]="idade"
+            name="idade"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="Ex: 3"
+          />
+        </div>
+        <div>
+          <label for="tutorId" class="block text-sm font-medium text-gray-700 mb-1">ID do Tutor (opcional)</label>
+          <input
+            id="tutorId"
+            type="number"
+            [(ngModel)]="tutorId"
+            name="tutorId"
+            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            placeholder="Número do ID do tutor"
+          />
+        </div>
+        <div class="pt-4 flex gap-3">
+          <button
+            type="submit"
+            [disabled]="saveLoading$ | async"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark disabled:opacity-50"
+          >
+            <lucide-icon name="save" [size]="18" />
+            {{ isEdit() ? 'Salvar' : 'Cadastrar' }}
+          </button>
+          <a
+            routerLink="/pets"
+            class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
+            Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
