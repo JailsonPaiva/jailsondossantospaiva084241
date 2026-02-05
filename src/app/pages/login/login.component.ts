@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../core/auth/auth.service';
 
@@ -17,8 +17,7 @@ export class LoginComponent {
 
   constructor(
     private fb: FormBuilder,
-    protected readonly auth: AuthService,
-    private router: Router
+    protected readonly auth: AuthService
   ) {
     this.loginForm = this.fb.nonNullable.group({
       username: ['', Validators.required],
@@ -36,12 +35,6 @@ export class LoginComponent {
       return;
     }
     const { username, password } = this.loginForm.getRawValue();
-    this.auth.login(username, password).subscribe({
-      next: (res) => {
-        if (res?.token ?? res?.accessToken) {
-          this.router.navigate(['/']);
-        }
-      },
-    });
+    this.auth.login(username, password).subscribe();
   }
 }

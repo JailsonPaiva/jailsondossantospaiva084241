@@ -10,7 +10,13 @@
   </div>
 
   <!-- Card do formulário -->
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100 p-8 relative">
+    @if (auth.isLoading()) {
+      <div class="login-loading-overlay" aria-busy="true" aria-live="polite">
+        <div class="login-loading-spinner"></div>
+        <p class="text-petrack-dark font-medium mt-3">Entrando...</p>
+      </div>
+    }
     <h2 class="text-xl font-bold text-center text-gray-800">Entrar</h2>
     <p class="text-sm text-gray-500 text-center mt-2 mb-6">Digite suas credenciais para acessar o sistema</p>
 

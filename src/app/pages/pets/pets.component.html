@@ -1,0 +1,131 @@
+<div class="pets-page flex flex-col min-h-[calc(100vh-5rem)]">
+  <div class="flex-1 bg-petrack-pale">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+      <!-- Título e subtítulo -->
+      <div class="mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-petrack-dark">Pets Registrados</h1>
+        <p class="text-gray-600 mt-1">Encontre e gerencie os pets cadastrados no sistema</p>
+      </div>
+
+      <!-- Barra: busca, filtro, Novo Pet -->
+      <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between mb-8">
+        <div class="flex flex-1 gap-2 max-w-md">
+          <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <lucide-icon name="search" class="w-5 h-5" [size]="20" />
+            </span>
+            <input
+              type="text"
+              [ngModel]="searchInput()"
+              (ngModelChange)="searchInput.set($event)"
+              (keydown.enter)="onSearch()"
+              placeholder="Buscar por nome..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+            />
+          </div>
+          <button
+            type="button"
+            (click)="onSearch()"
+            class="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 shrink-0"
+          >
+            Buscar
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+          >
+            <lucide-icon name="filter" [size]="18" />
+            <span class="hidden sm:inline">Todos</span>
+          </button>
+          <a
+            routerLink="/pets/novo"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors"
+          >
+            <lucide-icon name="plus" [size]="20" />
+            Novo Pet
+          </a>
+        </div>
+      </div>
+
+      <!-- Erro -->
+      @if (error$ | async; as error) {
+        <div class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          {{ error }}
+        </div>
+      }
+
+      <!-- Loading -->
+      @if (loading$ | async) {
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          @for (i of [1,2,3,4,5,6,7,8]; track i) {
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 animate-pulse">
+              <div class="aspect-square bg-gray-200"></div>
+              <div class="p-3 space-y-2">
+                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div class="h-3 bg-gray-100 rounded w-1/2"></div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- Grid de cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          @for (pet of list(); track trackByPetId($index, pet)) {
+            <a
+              [routerLink]="['/pets', pet.id]"
+              class="block bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
+            >
+              <div class="aspect-square bg-gray-100 overflow-hidden">
+                @if (pet.foto) {
+                  <img [src]="pet.foto" [alt]="pet.nome" class="w-full h-full object-cover" />
+                } @else {
+                  <div class="w-full h-full flex items-center justify-center text-petrack/40">
+                    <lucide-icon name="paw-print" [size]="48" />
+                  </div>
+                }
+              </div>
+              <div class="p-3">
+                <p class="font-medium text-gray-800 truncate">{{ pet.nome }}</p>
+                <p class="text-sm text-gray-500 truncate">{{ pet.especie ?? '—' }}</p>
+              </div>
+            </a>
+          }
+        </div>
+
+        @if (!(loading$ | async) && list().length === 0) {
+          <div class="text-center py-12 text-gray-500">
+            <lucide-icon name="paw-print" class="mx-auto text-gray-300 mb-4" [size]="48" />
+            <p>Nenhum pet encontrado.</p>
+            <p class="text-sm mt-1">Tente outro termo de busca ou cadastre um novo pet.</p>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-10 mt-auto shrink-0">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-petrack shrink-0">
+            <lucide-icon name="paw-print" class="text-white" [size]="24" />
+          </div>
+          <div>
+            <span class="block font-semibold text-petrack-dark">PeTrack MT</span>
+            <span class="block text-sm text-gray-500">Registro Público de Pets e Tutores</span>
+          </div>
+        </div>
+        <nav class="flex flex-wrap justify-center gap-6 text-gray-600">
+          <a href="#" class="hover:text-petrack transition-colors">Sobre</a>
+          <a href="#" class="hover:text-petrack transition-colors">Privacidade</a>
+          <a href="#" class="hover:text-petrack transition-colors">Termos de Uso</a>
+          <a href="#" class="hover:text-petrack transition-colors">Contato</a>
+        </nav>
+        <p class="text-sm text-gray-500 text-center md:text-right">© 2026 Feito com ❤️ em MT</p>
+      </div>
+    </div>
+  </footer>
+</div>

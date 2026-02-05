@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+.pets-page {
+  min-height: calc(100vh - 5rem);
+}

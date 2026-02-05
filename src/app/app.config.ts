@@ -17,6 +17,8 @@ import {
   Heart,
   ArrowRight,
   User,
+  Filter,
+  Plus,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -43,6 +45,8 @@ export const appConfig: ApplicationConfig = {
       Heart,
       ArrowRight,
       User,
+      Filter,
+      Plus,
     })
     ),
   ],

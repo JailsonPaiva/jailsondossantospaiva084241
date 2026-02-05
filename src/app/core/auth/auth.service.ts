@@ -1,8 +1,9 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, of } from 'rxjs';
 import { API_BASE_URL, API_ENDPOINTS } from '../api/api.constants';
+import { ToastService } from '../services/toast.service';
 
 export interface LoginRequest {
   username: string;
@@ -12,8 +13,32 @@ export interface LoginRequest {
 export interface LoginResponse {
   token?: string;
   accessToken?: string;
+  access_token?: string;
   refreshToken?: string;
+  refresh_token?: string;
+  data?: {
+    token?: string;
+    accessToken?: string;
+    access_token?: string;
+    refreshToken?: string;
+    refresh_token?: string;
+  };
   [key: string]: unknown;
+}
+
+const LOGIN_REDIRECT_URL = '/pets';
+
+/** Extrai o token de várias formas comuns de resposta da API */
+function extractAccessToken(res: LoginResponse | null): string | null {
+  if (!res || typeof res !== 'object') return null;
+  const raw =
+    res.token ??
+    res.accessToken ??
+    res.access_token ??
+    (res.data && typeof res.data === 'object'
+      ? (res.data.token ?? res.data.accessToken ?? res.data.access_token ?? null)
+      : null);
+  return typeof raw === 'string' && raw.length > 0 ? raw : null;
 }
 
 const TOKEN_KEY = 'petrack_token';
@@ -30,6 +55,8 @@ export class AuthService {
   readonly error = this.errorSignal.asReadonly();
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
 
+  private readonly toast = inject(ToastService);
+
   constructor(
     private readonly http: HttpClient,
     private readonly router: Router
@@ -44,13 +71,19 @@ export class AuthService {
 
     return this.http.post<LoginResponse>(url, body).pipe(
       tap((res) => {
-        const accessToken = res.token ?? res.accessToken ?? null;
+        const accessToken = extractAccessToken(res);
         if (accessToken) {
           this.tokenSignal.set(accessToken);
           this.setStoredToken(accessToken);
-          if (res.refreshToken) {
-            localStorage.setItem(REFRESH_TOKEN_KEY, res.refreshToken);
+          const refresh =
+            res.refreshToken ??
+            res.refresh_token ??
+            res.data?.refreshToken ??
+            res.data?.refresh_token;
+          if (typeof refresh === 'string') {
+            localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
           }
+          this.router.navigate([LOGIN_REDIRECT_URL]);
         }
         this.loadingSignal.set(false);
       }),
@@ -60,8 +93,10 @@ export class AuthService {
           err?.error?.message ??
           err?.error?.error ??
           err?.message ??
-          'Falha ao entrar. Verifique usuário e password.';
-        this.errorSignal.set(typeof message === 'string' ? message : 'Erro ao fazer login.');
+          'Falha ao entrar. Verifique usuário e senha.';
+        const text = typeof message === 'string' ? message : 'Ocorreu um erro ao fazer login.';
+        this.errorSignal.set(text);
+        this.toast.showError(text);
         return of(err);
       })
     );
