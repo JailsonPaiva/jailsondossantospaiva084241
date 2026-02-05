@@ -17,6 +17,8 @@ export class tutoresFacade {
   private readonly selectedtutoresSubject = new BehaviorSubject<tutores | null>(null);
   private readonly tutoresPetsSubject = new BehaviorSubject<Pet[]>([]);
   private readonly saveLoadingSubject = new BehaviorSubject<boolean>(false);
+  private readonly removeFotoLoadingSubject = new BehaviorSubject<boolean>(false);
+  private readonly uploadFotoLoadingSubject = new BehaviorSubject<boolean>(false);
 
   readonly list$ = this.listSubject.asObservable();
   readonly loading$ = this.loadingSubject.asObservable();
@@ -26,6 +28,8 @@ export class tutoresFacade {
   readonly selectedtutores$ = this.selectedtutoresSubject.asObservable();
   readonly tutoresPets$ = this.tutoresPetsSubject.asObservable();
   readonly saveLoading$ = this.saveLoadingSubject.asObservable();
+  readonly removeFotoLoading$ = this.removeFotoLoadingSubject.asObservable();
+  readonly uploadFotoLoading$ = this.uploadFotoLoadingSubject.asObservable();
 
   private _searchTerm = '';
   private _currentPage = 0;
@@ -106,8 +110,8 @@ export class tutoresFacade {
       .pipe(
         tap((tutores) => {
           this.selectedtutoresSubject.next(tutores);
+          this.tutoresPetsSubject.next(tutores?.pets ?? []);
           this.loadingSubject.next(false);
-          this.loadPetsBytutores(id);
         }),
         catchError((err) => {
           this.loadingSubject.next(false);
@@ -118,13 +122,14 @@ export class tutoresFacade {
       .subscribe();
   }
 
-  private loadPetsBytutores(tutoresId: number): void {
-    this.tutoresService.getPetsBytutores(tutoresId).pipe(
-      tap((pets) => this.tutoresPetsSubject.next(pets ?? [])),
-      catchError(() => {
-        this.tutoresPetsSubject.next([]);
-        return of([]);
-      })
+  /** Recarrega tutor por id e atualiza selected e pets (ex.: após link/unlink pet). */
+  private loadTutorWithPets(id: number): void {
+    this.tutoresService.getById(id).pipe(
+      tap((tutores) => {
+        this.selectedtutoresSubject.next(tutores);
+        this.tutoresPetsSubject.next(tutores?.pets ?? []);
+      }),
+      catchError(() => of(null))
     ).subscribe();
   }
 
@@ -197,7 +202,7 @@ export class tutoresFacade {
     this.tutoresService
       .linkPet(tutoresId, petId)
       .pipe(
-        tap(() => this.loadPetsBytutores(tutoresId)),
+        tap(() => this.loadTutorWithPets(tutoresId)),
         catchError((err) => {
           this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao vincular pet.');
           return of(null);
@@ -211,9 +216,49 @@ export class tutoresFacade {
     this.tutoresService
       .unlinkPet(tutoresId, petId)
       .pipe(
-        tap(() => this.loadPetsBytutores(tutoresId)),
+        tap(() => this.loadTutorWithPets(tutoresId)),
         catchError((err) => {
           this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao desvincular pet.');
+          return of(null);
+        })
+      )
+      .subscribe();
+  }
+
+  /** Remove a foto do tutor (DELETE /v1/tutores/{id}/fotos/{fotoId}) e recarrega o tutor. */
+  removeFoto(tutorId: number, fotoId: number): void {
+    this.errorSubject.next(null);
+    this.removeFotoLoadingSubject.next(true);
+    this.tutoresService
+      .deleteFoto(tutorId, fotoId)
+      .pipe(
+        tap(() => {
+          this.removeFotoLoadingSubject.next(false);
+          this.loadTutorWithPets(tutorId);
+        }),
+        catchError((err) => {
+          this.removeFotoLoadingSubject.next(false);
+          this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao remover foto.');
+          return of(null);
+        })
+      )
+      .subscribe();
+  }
+
+  /** Envia a foto do tutor (POST /v1/tutores/{id}/fotos) e recarrega o tutor. */
+  uploadFoto(tutorId: number, file: File): void {
+    this.errorSubject.next(null);
+    this.uploadFotoLoadingSubject.next(true);
+    this.tutoresService
+      .uploadFoto(tutorId, file)
+      .pipe(
+        tap(() => {
+          this.uploadFotoLoadingSubject.next(false);
+          this.loadTutorWithPets(tutorId);
+        }),
+        catchError((err) => {
+          this.uploadFotoLoadingSubject.next(false);
+          this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao enviar foto.');
           return of(null);
         })
       )

@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
+import { Subscription } from 'rxjs';
 import { tutoresFacade } from '../../features/tutores/facades/tutor.facade';
 import { tutores } from '../../core/models/tutor.model';
 
@@ -15,12 +16,15 @@ const PAGE_SIZE = 10;
   templateUrl: './tutores.component.html',
   styleUrl: './tutores.component.css',
 })
-export class tutoresComponent implements OnInit {
+export class tutoresComponent implements OnInit, OnDestroy {
   private readonly tutoresFacade = inject(tutoresFacade);
+  private subs = new Subscription();
 
   readonly searchInput = signal('');
-  readonly list$ = this.tutoresFacade.list$;
-  readonly loading$ = this.tutoresFacade.loading$;
+  /** Lista de tutores em signal para atualização imediata da view */
+  readonly list = signal<tutores[]>([]);
+  /** Loading em signal para atualização imediata da view */
+  readonly loading = signal(false);
   readonly error$ = this.tutoresFacade.error$;
   readonly total$ = this.tutoresFacade.total$;
   readonly currentPage$ = this.tutoresFacade.currentPage$;
@@ -42,10 +46,21 @@ export class tutoresComponent implements OnInit {
     Array.from({ length: this.totalPages() }, (_, i) => i + 1)
   );
 
+  /** Tutor selecionado para exclusão (null = modal fechado) */
+  readonly tutorToDelete = signal<tutores | null>(null);
+
   ngOnInit(): void {
-    this.tutoresFacade.total$.subscribe((v) => this.total.set(v));
-    this.tutoresFacade.currentPage$.subscribe((v) => this.currentPage0.set(v));
+    this.list.set([]);
+    this.loading.set(true);
+    this.subs.add(this.tutoresFacade.total$.subscribe((v) => this.total.set(v)));
+    this.subs.add(this.tutoresFacade.currentPage$.subscribe((v) => this.currentPage0.set(v)));
+    this.subs.add(this.tutoresFacade.list$.subscribe((items) => this.list.set(items ?? [])));
+    this.subs.add(this.tutoresFacade.loading$.subscribe((v) => this.loading.set(v)));
     this.tutoresFacade.loadtutores();
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 
   onSearch(): void {
@@ -59,5 +74,23 @@ export class tutoresComponent implements OnInit {
   goToPage(pageDisplay: number): void {
     const page0 = Math.max(0, Math.min(pageDisplay - 1, this.totalPages() - 1));
     this.tutoresFacade.setPage(page0);
+  }
+
+  openDeleteModal(event: Event, tutor: tutores): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.tutorToDelete.set(tutor);
+  }
+
+  closeDeleteModal(): void {
+    this.tutorToDelete.set(null);
+  }
+
+  confirmDelete(): void {
+    const tutor = this.tutorToDelete();
+    if (tutor) {
+      this.tutoresFacade.deletetutores(tutor.id);
+      this.closeDeleteModal();
+    }
   }
 }

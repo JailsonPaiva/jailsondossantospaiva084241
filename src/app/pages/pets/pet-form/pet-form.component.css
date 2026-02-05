@@ -1,1 +1,15 @@
 /* Pet form layout */
+
+/* Loading spinner no campo de tutor */
+:host ::ng-deep .animate-spin {
+  animation: pet-form-spin 0.8s linear infinite;
+}
+
+@keyframes pet-form-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

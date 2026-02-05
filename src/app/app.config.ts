@@ -22,6 +22,7 @@ import {
   Plus,
   Camera,
   Save,
+  Trash2,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -53,6 +54,7 @@ export const appConfig: ApplicationConfig = {
       ArrowLeft,
       Camera,
       Save,
+      Trash2,
     })
     ),
   ],

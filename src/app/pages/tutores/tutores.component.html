@@ -39,7 +39,7 @@
       }
 
       <!-- Loading -->
-      @if (loading$ | async) {
+      @if (loading()) {
         <div class="space-y-3">
           @for (i of [1,2,3,4,5]; track i) {
             <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4 animate-pulse">
@@ -54,27 +54,40 @@
       } @else {
         <!-- Lista de tutores (server-side pagination) -->
         <div class="space-y-3">
-          @for (tutores of list$ | async; track trackBytutoresId($index, tutores)) {
-            <a
-              [routerLink]="['/tutores', tutores.id]"
-              class="block bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
+          @for (tutores of list(); track trackBytutoresId($index, tutores)) {
+            <div
+              class="tutor-card bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
             >
-              <div class="w-14 h-14 rounded-full bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
-                @if (tutores.foto?.url) {
-                  <img [src]="tutores.foto?.url" [alt]="tutores.nome" class="w-full h-full object-cover" />
-                } @else {
-                  <span class="text-xl font-semibold text-petrack/60">{{ (tutores.nome || '?')[0] | uppercase }}</span>
-                }
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="font-medium text-gray-800 truncate">{{ tutores.nome }}</p>
-                <p class="text-sm text-gray-500 truncate">{{ tutores.email || tutores.telefone || '—' }}</p>
-              </div>
-            </a>
-          }e
+              <a
+                [routerLink]="['/tutores', tutores.id]"
+                class="tutor-card-link flex items-center gap-4 min-w-0 flex-1"
+              >
+                <div class="w-14 h-14 rounded-full bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
+                  @if (tutores.foto?.url) {
+                    <img [src]="tutores.foto?.url" [alt]="tutores.nome" class="w-full h-full object-cover" />
+                  } @else {
+                    <span class="text-xl font-semibold text-petrack/60">{{ (tutores.nome || '?')[0] | uppercase }}</span>
+                  }
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="font-medium text-gray-800 truncate">{{ tutores.nome }}</p>
+                  <p class="text-sm text-gray-500 truncate">{{ tutores.email || tutores.telefone || '—' }}</p>
+                </div>
+              </a>
+              <button
+                type="button"
+                (click)="openDeleteModal($event, tutores)"
+                class="tutor-card-delete shrink-0 flex items-center justify-center w-10 h-10 rounded-lg text-red-600 hover:bg-red-50 border border-red-200/50 hover:border-red-300 transition-colors"
+                title="Excluir tutor"
+                aria-label="Excluir tutor"
+              >
+                <lucide-icon name="trash-2" [size]="20" />
+              </button>
+            </div>
+          }
         </div>
 
-        @if (!(loading$ | async) && (list$ | async)?.length === 0) {
+        @if (!loading() && list().length === 0) {
           <div class="text-center py-12 text-gray-500">
             <lucide-icon name="users" class="mx-auto text-gray-300 mb-4" [size]="48" />
             <p>Nenhum tutores encontrado.</p>
@@ -83,7 +96,7 @@
         }
 
         <!-- Paginação server-side -->
-        @if (!(loading$ | async) && total() > 0) {
+        @if (!loading() && total() > 0) {
           <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-6">
             <p class="text-sm text-gray-600">
               Mostrando {{ paginationStart() }}–{{ paginationEnd() }} de {{ total() }} tutores
@@ -138,6 +151,65 @@
       }
     </div>
   </div>
+
+  <!-- Modal de confirmação de exclusão -->
+  @if (tutorToDelete(); as tutor) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      (click)="closeDeleteModal()"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="p-6">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+              <lucide-icon name="trash-2" class="text-red-600" [size]="28" />
+            </div>
+            <div>
+              <h2 id="modal-title" class="text-xl font-semibold text-gray-900">Excluir tutor?</h2>
+              <p class="text-sm text-gray-500 mt-0.5">Esta ação não pode ser desfeita.</p>
+            </div>
+          </div>
+          <p class="text-gray-600 text-sm mb-4">
+            Deseja realmente excluir o tutor abaixo?
+          </p>
+          <div class="bg-gray-50 rounded-xl p-4 space-y-2 mb-6">
+            <p class="font-medium text-gray-900">{{ tutor.nome || '—' }}</p>
+            @if (tutor.email) {
+              <p class="text-sm text-gray-600">{{ tutor.email }}</p>
+            }
+            @if (tutor.telefone) {
+              <p class="text-sm text-gray-600">{{ tutor.telefone }}</p>
+            }
+            @if (!tutor.email && !tutor.telefone) {
+              <p class="text-sm text-gray-500">Sem e-mail ou telefone cadastrado</p>
+            }
+          </div>
+          <div class="flex gap-3 justify-end">
+            <button
+              type="button"
+              (click)="closeDeleteModal()"
+              class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              (click)="confirmDelete()"
+              class="px-4 py-2.5 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700"
+            >
+              Excluir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 
   <!-- Footer -->
   <footer class="bg-white border-t border-gray-200 py-10 mt-auto shrink-0">

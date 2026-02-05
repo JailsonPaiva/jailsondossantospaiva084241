@@ -1,3 +1,5 @@
+import type { Pet } from './pet.model';
+
 export interface tutoresFoto {
   id: number;
   nome: string;
@@ -13,6 +15,8 @@ export interface tutores {
   endereco: string;
   cpf: number | null;
   foto?: tutoresFoto;
+  /** Pets vinculados ao tutor (retornado por GET /v1/tutores/:id) */
+  pets?: Pet[];
 }
 
 export interface tutoresPageResponse {

@@ -3,7 +3,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL, API_ENDPOINTS } from '../../../core/api/api.constants';
 import { tutores, tutoresPageResponse } from '../../../core/models/tutor.model';
-import { Pet } from '../../../core/models/pet.model';
 
 export interface GettutoresParams {
   page?: number;
@@ -28,6 +27,7 @@ export class tutoresService {
     return this.http.get<tutoresPageResponse>(this.baseUrl, { params: httpParams });
   }
 
+  /** GET /v1/tutores/:id — retorna o tutor com o array pets vinculados. */
   getById(id: number): Observable<tutores> {
     return this.http.get<tutores>(`${this.baseUrl}/${id}`);
   }
@@ -44,10 +44,6 @@ export class tutoresService {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  getPetsBytutores(tutoresId: number): Observable<Pet[]> {
-    return this.http.get<Pet[]>(`${this.baseUrl}/${tutoresId}/pets`);
-  }
-
   /** Vincula pet ao tutor: POST /v1/tutores/{id}/pets/{petId} */
   linkPet(tutoresId: number, petId: number): Observable<unknown> {
     return this.http.post(`${this.baseUrl}/${tutoresId}/pets/${petId}`, {});
@@ -55,5 +51,22 @@ export class tutoresService {
 
   unlinkPet(tutoresId: number, petId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${tutoresId}/pets/${petId}`);
+  }
+
+  /** Remove a foto do tutor: DELETE /v1/tutores/{id}/fotos/{fotoId} */
+  deleteFoto(tutorId: number, fotoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${tutorId}/fotos/${fotoId}`);
+  }
+
+  /**
+   * Envia a foto do tutor para POST /v1/tutores/{id}/fotos.
+   * Corpo (multipart/form-data): id do tutor + arquivo da foto em binário.
+   */
+  uploadFoto(tutorId: number, file: File): Observable<{ url?: string; foto?: { url: string } }> {
+    const url = `${this.baseUrl}/${tutorId}/fotos`;
+    const formData = new FormData();
+    formData.append('id', String(tutorId));
+    formData.append('foto', file, file.name);
+    return this.http.post<{ url?: string; foto?: { url: string } }>(url, formData);
   }
 }
