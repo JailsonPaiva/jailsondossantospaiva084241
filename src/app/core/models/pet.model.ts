@@ -1,6 +1,6 @@
 export interface Pet {
   id: number;
-  nome: string;
+  nome?: string;
   idade?: string;
   raca?: string;
   foto?: { url: string };
