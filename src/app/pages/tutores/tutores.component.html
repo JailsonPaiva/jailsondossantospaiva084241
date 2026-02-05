@@ -1,13 +1,13 @@
-<div class="tutores-page flex flex-col min-h-[calc(100vh-5rem)]">
+<div class="tutor-page flex flex-col min-h-[calc(100vh-5rem)]">
   <div class="flex-1 bg-petrack-pale">
     <div class="max-w-6xl mx-auto px-4 py-8">
       <!-- Título e subtítulo -->
       <div class="mb-6">
-        <h1 class="text-2xl sm:text-3xl font-bold text-petrack-dark">Tutores</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-petrack-dark">tutores</h1>
         <p class="text-gray-600 mt-1">Gerencie os tutores responsáveis pelos pets</p>
       </div>
 
-      <!-- Barra: busca e Novo Tutor -->
+      <!-- Barra: busca e Novo tutores -->
       <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between mb-8">
         <div class="relative flex-1 max-w-md">
           <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
@@ -27,7 +27,7 @@
             class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors shrink-0"
           >
             <lucide-icon name="plus" [size]="20" />
-            Novo Tutor
+            Novo tutores
           </a>
       </div>
 
@@ -54,30 +54,30 @@
       } @else {
         <!-- Lista de tutores (server-side pagination) -->
         <div class="space-y-3">
-          @for (tutor of list$ | async; track trackByTutorId($index, tutor)) {
+          @for (tutores of list$ | async; track trackBytutoresId($index, tutores)) {
             <a
-              [routerLink]="['/tutores', tutor.id]"
+              [routerLink]="['/tutores', tutores.id]"
               class="block bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition-shadow"
             >
               <div class="w-14 h-14 rounded-full bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
-                @if (tutor.foto?.url) {
-                  <img [src]="tutor.foto?.url" [alt]="tutor.nome" class="w-full h-full object-cover" />
+                @if (tutores.foto?.url) {
+                  <img [src]="tutores.foto?.url" [alt]="tutores.nome" class="w-full h-full object-cover" />
                 } @else {
-                  <span class="text-xl font-semibold text-petrack/60">{{ (tutor.nome || '?')[0] | uppercase }}</span>
+                  <span class="text-xl font-semibold text-petrack/60">{{ (tutores.nome || '?')[0] | uppercase }}</span>
                 }
               </div>
               <div class="min-w-0 flex-1">
-                <p class="font-medium text-gray-800 truncate">{{ tutor.nome }}</p>
-                <p class="text-sm text-gray-500 truncate">{{ tutor.email || tutor.telefone || '—' }}</p>
+                <p class="font-medium text-gray-800 truncate">{{ tutores.nome }}</p>
+                <p class="text-sm text-gray-500 truncate">{{ tutores.email || tutores.telefone || '—' }}</p>
               </div>
             </a>
-          }
+          }e
         </div>
 
         @if (!(loading$ | async) && (list$ | async)?.length === 0) {
           <div class="text-center py-12 text-gray-500">
             <lucide-icon name="users" class="mx-auto text-gray-300 mb-4" [size]="48" />
-            <p>Nenhum tutor encontrado.</p>
+            <p>Nenhum tutores encontrado.</p>
             <p class="text-sm mt-1">Tente outro termo de busca ou cadastre um novo tutor.</p>
           </div>
         }
@@ -149,7 +149,7 @@
           </div>
           <div>
             <span class="block font-semibold text-petrack-dark">PeTrack MT</span>
-            <span class="block text-sm text-gray-500">Registro Público de Pets e Tutores</span>
+            <span class="block text-sm text-gray-500">Registro Público de Pets e tutores</span>
           </div>
         </div>
         <nav class="flex flex-wrap justify-center gap-6 text-gray-600">

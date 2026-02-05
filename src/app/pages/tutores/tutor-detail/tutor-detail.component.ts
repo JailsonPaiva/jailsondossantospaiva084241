@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { TutorFacade } from '../../../features/tutores/facades/tutor.facade';
+import { tutoresFacade } from '../../../features/tutores/facades/tutor.facade';
 import { Pet } from '../../../core/models/pet.model';
 
 @Component({
@@ -13,48 +13,48 @@ import { Pet } from '../../../core/models/pet.model';
   templateUrl: './tutor-detail.component.html',
   styleUrl: './tutor-detail.component.css',
 })
-export class TutorDetailComponent implements OnInit, OnDestroy {
+export class tutoresDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
-  private readonly tutorFacade = inject(TutorFacade);
+  private readonly tutoresFacade = inject(tutoresFacade);
 
-  readonly selectedTutor$ = this.tutorFacade.selectedTutor$;
-  readonly tutorPets$ = this.tutorFacade.tutorPets$;
-  readonly loading$ = this.tutorFacade.loading$;
-  readonly error$ = this.tutorFacade.error$;
+  readonly selectedtutores$ = this.tutoresFacade.selectedtutores$;
+  readonly tutoresPets$ = this.tutoresFacade.tutoresPets$;
+  readonly loading$ = this.tutoresFacade.loading$;
+  readonly error$ = this.tutoresFacade.error$;
 
   readonly petIdToLink = signal('');
 
-  private _tutorId: number | null = null;
+  private _tutoresId: number | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     const num = id ? parseInt(id, 10) : NaN;
     if (!isNaN(num)) {
-      this._tutorId = num;
-      this.tutorFacade.loadTutorById(num);
+      this._tutoresId = num;
+      this.tutoresFacade.loadtutoresById(num);
     }
   }
 
   ngOnDestroy(): void {
-    this.tutorFacade.clearSelected();
+    this.tutoresFacade.clearSelected();
   }
 
-  get tutorId(): number | null {
-    return this._tutorId;
+  get tutoresId(): number | null {
+    return this._tutoresId;
   }
 
   onLinkPet(): void {
     const idStr = this.petIdToLink().trim();
     const petId = idStr ? parseInt(idStr, 10) : NaN;
-    if (!isNaN(petId) && this._tutorId != null) {
-      this.tutorFacade.linkPet(this._tutorId, petId);
+    if (!isNaN(petId) && this._tutoresId != null) {
+      this.tutoresFacade.linkPet(this._tutoresId, petId);
       this.petIdToLink.set('');
     }
   }
 
   onUnlinkPet(petId: number): void {
-    if (this._tutorId != null) {
-      this.tutorFacade.unlinkPet(this._tutorId, petId);
+    if (this._tutoresId != null) {
+      this.tutoresFacade.unlinkPet(this._tutoresId, petId);
     }
   }
 

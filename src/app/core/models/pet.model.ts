@@ -1,14 +1,22 @@
-import type { Tutor } from './tutor.model';
+import type { tutores } from './tutor.model';
+
+export interface PetFoto {
+  id?: number;
+  nome?: string;
+  contentType?: string;
+  url: string;
+}
 
 export interface Pet {
   id: number;
   nome?: string;
   especie?: string;
-  idade?: string;
+  idade?: string | number;
   raca?: string;
-  foto?: { url: string };
-  tutorId?: number;
-  tutor?: Tutor;
+  foto?: PetFoto;
+  tutoresId?: number;
+  /** Tutores vinculados (resposta da API GET /v1/pets/{id}) */
+  tutores?: tutores[];
 }
 
 export interface PetsPageResponse {

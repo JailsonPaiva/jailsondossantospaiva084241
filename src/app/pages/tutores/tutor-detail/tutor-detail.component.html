@@ -6,7 +6,7 @@
         class="inline-flex items-center gap-2 text-gray-600 hover:text-petrack mb-6"
       >
         <lucide-icon name="arrow-left" [size]="20" />
-        Voltar aos Tutores
+        Voltar aos tutores
       </a>
 
       @if (error$ | async; as error) {
@@ -21,31 +21,31 @@
           <div class="h-4 bg-gray-100 rounded w-2/3 mb-2"></div>
           <div class="h-4 bg-gray-100 rounded w-1/2"></div>
         </div>
-      } @else if (selectedTutor$ | async; as tutor) {
+      } @else if (selectedtutores$ | async; as tutores) {
         <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
           <div class="p-6 flex flex-wrap items-start gap-4">
-            @if (tutor.foto?.url) {
-              <img [src]="tutor.foto?.url" [alt]="tutor.nome" class="w-24 h-24 rounded-full object-cover shrink-0" />
+            @if (tutores.foto?.url) {
+              <img [src]="tutores.foto?.url" [alt]="tutores.nome" class="w-24 h-24 rounded-full object-cover shrink-0" />
             } @else {
               <div class="w-24 h-24 rounded-full bg-petrack-light flex items-center justify-center shrink-0">
                 <lucide-icon name="user" class="text-petrack" [size]="40" />
               </div>
             }
             <div class="min-w-0 flex-1">
-              <h1 class="text-2xl font-bold text-petrack-dark">{{ tutor.nome }}</h1>
-              @if (tutor.email) {
-                <p class="text-gray-600 mt-1">{{ tutor.email }}</p>
+              <h1 class="text-2xl font-bold text-petrack-dark">{{ tutores.nome }}</h1>
+              @if (tutores.email) {
+                <p class="text-gray-600 mt-1">{{ tutores.email }}</p>
               }
-              @if (tutor.telefone) {
-                <p class="text-gray-600">{{ tutor.telefone }}</p>
+              @if (tutores.telefone) {
+                <p class="text-gray-600">{{ tutores.telefone }}</p>
               }
-              @if (tutor.endereco) {
-                <p class="text-gray-600 text-sm mt-1">{{ tutor.endereco }}</p>
+              @if (tutores.endereco) {
+                <p class="text-gray-600 text-sm mt-1">{{ tutores.endereco }}</p>
               }
             </div>
-            @if (tutorId !== null) {
+            @if (tutoresId !== null) {
               <a
-                [routerLink]="['/tutores', tutorId, 'editar']"
+                [routerLink]="['/tutores', tutoresId, 'editar']"
                 class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark"
               >
                 <lucide-icon name="save" [size]="18" />
@@ -55,12 +55,12 @@
           </div>
         </div>
 
-        <!-- Pets do tutor -->
+        <!-- Pets do tutores -->
         <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6">
           <h2 class="text-lg font-semibold text-petrack-dark mb-4">Pets vinculados</h2>
 
           <!-- Vincular pet (ID) -->
-          @if (tutorId !== null) {
+          @if (tutoresId !== null) {
             <div class="flex gap-2 mb-6">
               <input
                 type="number"
@@ -80,7 +80,7 @@
           }
 
           <ul class="space-y-3">
-            @for (pet of tutorPets$ | async; track trackByPetId($index, pet)) {
+            @for (pet of tutoresPets$ | async; track trackByPetId($index, pet)) {
               <li
                 class="flex items-center justify-between gap-4 p-3 rounded-xl border border-gray-100 hover:bg-gray-50"
               >
@@ -97,7 +97,7 @@
                     <p class="text-sm text-gray-500">{{ pet.especie ?? pet.raca ?? '—' }}</p>
                   </div>
                 </a>
-                @if (tutorId !== null) {
+                @if (tutoresId !== null) {
                   <button
                     type="button"
                     (click)="onUnlinkPet(pet.id)"
@@ -110,13 +110,13 @@
             }
           </ul>
 
-          @if ((tutorPets$ | async)?.length === 0) {
+          @if ((tutoresPets$ | async)?.length === 0) {
             <p class="text-gray-500 text-sm py-4">Nenhum pet vinculado. Use o campo acima para vincular pelo ID do pet.</p>
           }
         </div>
       } @else {
         <div class="text-center py-12 text-gray-500">
-          <p>Tutor não encontrado.</p>
+          <p>tutores não encontrado.</p>
           <a routerLink="/tutores" class="text-petrack hover:underline mt-2 inline-block">Voltar à listagem</a>
         </div>
       }

@@ -3,8 +3,8 @@ import { RouterLink } from '@angular/router';
 import { AsyncPipe, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { TutorFacade } from '../../features/tutores/facades/tutor.facade';
-import { Tutor } from '../../core/models/tutor.model';
+import { tutoresFacade } from '../../features/tutores/facades/tutor.facade';
+import { tutores } from '../../core/models/tutor.model';
 
 const PAGE_SIZE = 10;
 
@@ -15,15 +15,15 @@ const PAGE_SIZE = 10;
   templateUrl: './tutores.component.html',
   styleUrl: './tutores.component.css',
 })
-export class TutoresComponent implements OnInit {
-  private readonly tutorFacade = inject(TutorFacade);
+export class tutoresComponent implements OnInit {
+  private readonly tutoresFacade = inject(tutoresFacade);
 
   readonly searchInput = signal('');
-  readonly list$ = this.tutorFacade.list$;
-  readonly loading$ = this.tutorFacade.loading$;
-  readonly error$ = this.tutorFacade.error$;
-  readonly total$ = this.tutorFacade.total$;
-  readonly currentPage$ = this.tutorFacade.currentPage$;
+  readonly list$ = this.tutoresFacade.list$;
+  readonly loading$ = this.tutoresFacade.loading$;
+  readonly error$ = this.tutoresFacade.error$;
+  readonly total$ = this.tutoresFacade.total$;
+  readonly currentPage$ = this.tutoresFacade.currentPage$;
 
   readonly pageSize = PAGE_SIZE;
   readonly total = signal(0);
@@ -43,21 +43,21 @@ export class TutoresComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    this.tutorFacade.total$.subscribe((v) => this.total.set(v));
-    this.tutorFacade.currentPage$.subscribe((v) => this.currentPage0.set(v));
-    this.tutorFacade.loadTutores();
+    this.tutoresFacade.total$.subscribe((v) => this.total.set(v));
+    this.tutoresFacade.currentPage$.subscribe((v) => this.currentPage0.set(v));
+    this.tutoresFacade.loadtutores();
   }
 
   onSearch(): void {
-    this.tutorFacade.search(this.searchInput());
+    this.tutoresFacade.search(this.searchInput());
   }
 
-  trackByTutorId(_index: number, tutor: Tutor): number {
-    return tutor.id;
+  trackBytutoresId(_index: number, tutores: tutores): number {
+    return tutores.id;
   }
 
   goToPage(pageDisplay: number): void {
     const page0 = Math.max(0, Math.min(pageDisplay - 1, this.totalPages() - 1));
-    this.tutorFacade.setPage(page0);
+    this.tutoresFacade.setPage(page0);
   }
 }

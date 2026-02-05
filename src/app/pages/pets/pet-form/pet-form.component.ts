@@ -29,7 +29,7 @@ export class PetFormComponent implements OnInit, OnDestroy {
   especie = '';
   raca = '';
   idade = '';
-  tutorId: number | undefined = undefined;
+  tutoresId: number | undefined = undefined;
 
   readonly title = computed(() => (this.isEdit() ? 'Editar pet' : 'Novo pet'));
 
@@ -46,8 +46,8 @@ export class PetFormComponent implements OnInit, OnDestroy {
             this.nome = pet.nome ?? '';
             this.especie = pet.especie ?? '';
             this.raca = pet.raca ?? '';
-            this.idade = pet.idade ?? '';
-            this.tutorId = pet.tutorId;
+            this.idade = pet.idade != null ? String(pet.idade) : '';
+            this.tutoresId = pet.tutoresId;
           }
         });
       }
@@ -66,12 +66,22 @@ export class PetFormComponent implements OnInit, OnDestroy {
       especie: this.especie || undefined,
       raca: this.raca || undefined,
       idade: this.idade || undefined,
-      tutorId: this.tutorId,
+      tutoresId: this.tutoresId,
     };
     if (id != null) {
       this.petFacade.update(id, body);
     } else {
       this.petFacade.create(body);
     }
+  }
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    const id = this.petId();
+    if (file && id != null) {
+      this.petFacade.uploadPhoto(id, file);
+    }
+    input.value = '';
   }
 }

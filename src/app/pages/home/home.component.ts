@@ -24,7 +24,7 @@ export class HomeComponent {
       icon: 'paw-print' as const,
     },
     {
-      title: 'Gestão de Tutores',
+      title: 'Gestão de tutores',
       description: 'Vincule tutores responsáveis aos seus pets',
       icon: 'users' as const,
     },

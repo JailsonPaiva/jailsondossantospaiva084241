@@ -1,4 +1,4 @@
-# Análise de Requisitos – Edital Registro Público de Pets e Tutores
+# Análise de Requisitos – Edital Registro Público de Pets e tutores
 
 ## Status por Fase
 
@@ -26,9 +26,9 @@
 ### ✅ Fase 3: Arquitetura Base (Lazy Loading & Layout)
 | Item | Status |
 |------|--------|
-| Roteamento Lazy Loading (Pets, Tutores) | ✅ loadComponent em app.routes |
+| Roteamento Lazy Loading (Pets, tutores) | ✅ loadComponent em app.routes |
 | Layout Header | ✅ components/header |
-| Menu | ✅ Links no header (Início, Pets, Tutores) |
+| Menu | ✅ Links no header (Início, Pets, tutores) |
 
 ---
 
@@ -37,7 +37,7 @@
 |------|--------|
 | PetService + PetFacade (BehaviorSubject) | ✅ |
 | Grid de Cards (Foto, Nome, Espécie) | ✅ Espécie no model e no card (fallback raça) |
-| Paginação 10 itens (server-side) | ✅ total$ + currentPage$ + setPage() no facade; mesma lógica em Tutores |
+| Paginação 10 itens (server-side) | ✅ total$ + currentPage$ + setPage() no facade; mesma lógica em tutores |
 | Busca por nome | ✅ |
 | GET /v1/pets | ✅ |
 
@@ -47,19 +47,19 @@
 | Item | Status |
 |------|--------|
 | Rotas /pets/:id, /pets/novo, /pets/:id/editar | ✅ |
-| Tela de Detalhes GET /v1/pets/{id} + dados do tutor | ✅ PetDetailComponent, selectedPet$, tutor no model |
+| Tela de Detalhes GET /v1/pets/{id} + dados do tutores | ✅ PetDetailComponent, selectedPet$, tutores no model |
 | Formulário Cadastro/Edição (POST/PUT) | ✅ PetFormComponent, PetFacade.create/update |
 | Upload de foto (POST …/fotos) | ✅ PetFacade.uploadPhoto, POST /v1/pets/:id/fotos |
 
 ---
 
-### ✅ Fase 6: Módulo Tutores – Gestão Complexa
+### ✅ Fase 6: Módulo tutores – Gestão Complexa
 | Item | Status |
 |------|--------|
-| CRUD Tutores (Nome, Telefone, Endereço, etc.) | ✅ TutorService create/update/delete, TutorFormComponent |
-| Listar pets do tutor | ✅ GET /v1/tutores/:id/pets, tutorPets$ no TutorFacade |
-| Vincular (POST) / Desvincular (DELETE) | ✅ linkPet, unlinkPet no facade e TutorDetailComponent |
-| Atualizar UI via BehaviorSubject após ações | ✅ tutorPetsSubject atualizado após link/unlink |
+| CRUD tutores (Nome, Telefone, Endereço, etc.) | ✅ tutoresService create/update/delete, tutoresFormComponent |
+| Listar pets do tutores | ✅ GET /v1/tutores/:id/pets, tutoresPets$ no tutoresFacade |
+| Vincular (POST) / Desvincular (DELETE) | ✅ linkPet, unlinkPet no facade e tutoresDetailComponent |
+| Atualizar UI via BehaviorSubject após ações | ✅ tutoresPetsSubject atualizado após link/unlink |
 | Rotas /tutores/novo, /tutores/:id, /tutores/:id/editar | ✅ |
 
 ---
@@ -76,9 +76,9 @@
 ## Ordem sugerida de implementação (ciclos)
 
 1. ~~**Fase 2 (complemento):** Refresh Token no interceptor.~~ ✅ Feito.
-2. **Fase 4 (ajuste):** Paginação server-side na listagem de Pets (e Tutores) + Espécie no card se a API expuser.
+2. **Fase 4 (ajuste):** Paginação server-side na listagem de Pets (e tutores) + Espécie no card se a API expuser.
 3. **Fase 5:** Rotas, detalhes, formulário e upload de foto de Pets.
-4. **Fase 6:** CRUD Tutores + vinculação/desvinculação de pets.
+4. **Fase 6:** CRUD tutores + vinculação/desvinculação de pets.
 5. **Fase 7:** Testes unitários + lint.
 
 ---

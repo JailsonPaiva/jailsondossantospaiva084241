@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, tap, catchError, of } from 'rxjs';
-import { Tutor } from '../../../core/models/tutor.model';
+import { tutores } from '../../../core/models/tutor.model';
 import { Pet } from '../../../core/models/pet.model';
-import { TutorService, TutorCreateUpdate } from '../services/tutor.service';
+import { tutoresService, tutoresCreateUpdate } from '../services/tutor.service';
 
 const PAGE_SIZE = 10;
 
 @Injectable({ providedIn: 'root' })
-export class TutorFacade {
-  private readonly listSubject = new BehaviorSubject<Tutor[]>([]);
+export class tutoresFacade {
+  private readonly listSubject = new BehaviorSubject<tutores[]>([]);
   private readonly loadingSubject = new BehaviorSubject<boolean>(false);
   private readonly errorSubject = new BehaviorSubject<string | null>(null);
   private readonly totalSubject = new BehaviorSubject<number>(0);
   private readonly currentPageSubject = new BehaviorSubject<number>(0);
-  private readonly selectedTutorSubject = new BehaviorSubject<Tutor | null>(null);
-  private readonly tutorPetsSubject = new BehaviorSubject<Pet[]>([]);
+  private readonly selectedtutoresSubject = new BehaviorSubject<tutores | null>(null);
+  private readonly tutoresPetsSubject = new BehaviorSubject<Pet[]>([]);
   private readonly saveLoadingSubject = new BehaviorSubject<boolean>(false);
 
   readonly list$ = this.listSubject.asObservable();
@@ -23,19 +23,19 @@ export class TutorFacade {
   readonly error$ = this.errorSubject.asObservable();
   readonly total$ = this.totalSubject.asObservable();
   readonly currentPage$ = this.currentPageSubject.asObservable();
-  readonly selectedTutor$ = this.selectedTutorSubject.asObservable();
-  readonly tutorPets$ = this.tutorPetsSubject.asObservable();
+  readonly selectedtutores$ = this.selectedtutoresSubject.asObservable();
+  readonly tutoresPets$ = this.tutoresPetsSubject.asObservable();
   readonly saveLoading$ = this.saveLoadingSubject.asObservable();
 
   private _searchTerm = '';
   private _currentPage = 0;
 
   constructor(
-    private readonly tutorService: TutorService,
+    private readonly tutoresService: tutoresService,
     private readonly router: Router
   ) {}
 
-  get list(): Tutor[] {
+  get list(): tutores[] {
     return this.listSubject.value;
   }
 
@@ -51,12 +51,12 @@ export class TutorFacade {
     this._searchTerm = value;
   }
 
-  loadTutores(): void {
+  loadtutores(): void {
     this.errorSubject.next(null);
     this.loadingSubject.next(true);
 
-    this.tutorService
-      .getTutores({
+    this.tutoresService
+      .gettutores({
         page: this._currentPage,
         size: PAGE_SIZE,
         nome: this._searchTerm || undefined,
@@ -71,7 +71,7 @@ export class TutorFacade {
         }),
         catchError((err) => {
           this.loadingSubject.next(false);
-          this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao carregar tutores.');
+          this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao carregar tutor.');
           this.listSubject.next([]);
           return of(null);
         })
@@ -82,13 +82,13 @@ export class TutorFacade {
   search(nome: string): void {
     this._searchTerm = nome;
     this._currentPage = 0;
-    this.loadTutores();
+    this.loadtutores();
   }
 
   /** page: índice 0-based (página do servidor) */
   setPage(page: number): void {
     this._currentPage = page;
-    this.loadTutores();
+    this.loadtutores();
   }
 
   get totalPages(): number {
@@ -96,18 +96,18 @@ export class TutorFacade {
     return Math.max(1, Math.ceil(total / PAGE_SIZE));
   }
 
-  loadTutorById(id: number): void {
+  loadtutoresById(id: number): void {
     this.errorSubject.next(null);
     this.loadingSubject.next(true);
-    this.selectedTutorSubject.next(null);
-    this.tutorPetsSubject.next([]);
-    this.tutorService
+    this.selectedtutoresSubject.next(null);
+    this.tutoresPetsSubject.next([]);
+    this.tutoresService
       .getById(id)
       .pipe(
-        tap((tutor) => {
-          this.selectedTutorSubject.next(tutor);
+        tap((tutores) => {
+          this.selectedtutoresSubject.next(tutores);
           this.loadingSubject.next(false);
-          this.loadPetsByTutor(id);
+          this.loadPetsBytutores(id);
         }),
         catchError((err) => {
           this.loadingSubject.next(false);
@@ -118,31 +118,31 @@ export class TutorFacade {
       .subscribe();
   }
 
-  private loadPetsByTutor(tutorId: number): void {
-    this.tutorService.getPetsByTutor(tutorId).pipe(
-      tap((pets) => this.tutorPetsSubject.next(pets ?? [])),
+  private loadPetsBytutores(tutoresId: number): void {
+    this.tutoresService.getPetsBytutores(tutoresId).pipe(
+      tap((pets) => this.tutoresPetsSubject.next(pets ?? [])),
       catchError(() => {
-        this.tutorPetsSubject.next([]);
+        this.tutoresPetsSubject.next([]);
         return of([]);
       })
     ).subscribe();
   }
 
   clearSelected(): void {
-    this.selectedTutorSubject.next(null);
-    this.tutorPetsSubject.next([]);
+    this.selectedtutoresSubject.next(null);
+    this.tutoresPetsSubject.next([]);
   }
 
-  create(body: TutorCreateUpdate): void {
+  create(body: tutoresCreateUpdate): void {
     this.errorSubject.next(null);
     this.saveLoadingSubject.next(true);
-    this.tutorService
+    this.tutoresService
       .create(body)
       .pipe(
-        tap((tutor) => {
+        tap((tutores) => {
           this.saveLoadingSubject.next(false);
-          this.loadTutores();
-          this.router.navigate(['/tutores', tutor.id]);
+          this.loadtutores();
+          this.router.navigate(['/tutores', tutores.id]);
         }),
         catchError((err) => {
           this.saveLoadingSubject.next(false);
@@ -153,16 +153,16 @@ export class TutorFacade {
       .subscribe();
   }
 
-  update(id: number, body: TutorCreateUpdate): void {
+  update(id: number, body: tutoresCreateUpdate): void {
     this.errorSubject.next(null);
     this.saveLoadingSubject.next(true);
-    this.tutorService
+    this.tutoresService
       .update(id, body)
       .pipe(
-        tap((tutor) => {
+        tap((tutores) => {
           this.saveLoadingSubject.next(false);
-          this.selectedTutorSubject.next(tutor);
-          this.loadTutores();
+          this.selectedtutoresSubject.next(tutores);
+          this.loadtutores();
           this.router.navigate(['/tutores', id]);
         }),
         catchError((err) => {
@@ -174,14 +174,14 @@ export class TutorFacade {
       .subscribe();
   }
 
-  deleteTutor(id: number): void {
+  deletetutores(id: number): void {
     this.errorSubject.next(null);
-    this.tutorService
+    this.tutoresService
       .delete(id)
       .pipe(
         tap(() => {
           this.clearSelected();
-          this.loadTutores();
+          this.loadtutores();
           this.router.navigate(['/tutores']);
         }),
         catchError((err) => {
@@ -192,12 +192,12 @@ export class TutorFacade {
       .subscribe();
   }
 
-  linkPet(tutorId: number, petId: number): void {
+  linkPet(tutoresId: number, petId: number): void {
     this.errorSubject.next(null);
-    this.tutorService
-      .linkPet(tutorId, petId)
+    this.tutoresService
+      .linkPet(tutoresId, petId)
       .pipe(
-        tap(() => this.loadPetsByTutor(tutorId)),
+        tap(() => this.loadPetsBytutores(tutoresId)),
         catchError((err) => {
           this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao vincular pet.');
           return of(null);
@@ -206,12 +206,12 @@ export class TutorFacade {
       .subscribe();
   }
 
-  unlinkPet(tutorId: number, petId: number): void {
+  unlinkPet(tutoresId: number, petId: number): void {
     this.errorSubject.next(null);
-    this.tutorService
-      .unlinkPet(tutorId, petId)
+    this.tutoresService
+      .unlinkPet(tutoresId, petId)
       .pipe(
-        tap(() => this.loadPetsByTutor(tutorId)),
+        tap(() => this.loadPetsBytutores(tutoresId)),
         catchError((err) => {
           this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao desvincular pet.');
           return of(null);

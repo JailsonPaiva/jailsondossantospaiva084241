@@ -4,8 +4,8 @@ import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { filter, take } from 'rxjs';
-import { TutorFacade } from '../../../features/tutores/facades/tutor.facade';
-import { TutorCreateUpdate } from '../../../features/tutores/services/tutor.service';
+import { tutoresFacade } from '../../../features/tutores/facades/tutor.facade';
+import { tutoresCreateUpdate } from '../../../features/tutores/services/tutor.service';
 
 @Component({
   selector: 'app-tutor-form',
@@ -14,16 +14,16 @@ import { TutorCreateUpdate } from '../../../features/tutores/services/tutor.serv
   templateUrl: './tutor-form.component.html',
   styleUrl: './tutor-form.component.css',
 })
-export class TutorFormComponent implements OnInit, OnDestroy {
+export class tutoresFormComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
-  private readonly tutorFacade = inject(TutorFacade);
+  private readonly tutoresFacade = inject(tutoresFacade);
 
-  readonly error$ = this.tutorFacade.error$;
-  readonly saveLoading$ = this.tutorFacade.saveLoading$;
-  readonly selectedTutor$ = this.tutorFacade.selectedTutor$;
+  readonly error$ = this.tutoresFacade.error$;
+  readonly saveLoading$ = this.tutoresFacade.saveLoading$;
+  readonly selectedtutores$ = this.tutoresFacade.selectedtutores$;
 
   readonly isEdit = signal(false);
-  readonly tutorId = signal<number | null>(null);
+  readonly tutoresId = signal<number | null>(null);
 
   nome = '';
   email = '';
@@ -31,7 +31,7 @@ export class TutorFormComponent implements OnInit, OnDestroy {
   endereco = '';
   cpf: number | undefined = undefined;
 
-  readonly title = computed(() => (this.isEdit() ? 'Editar tutor' : 'Novo tutor'));
+  readonly title = computed(() => (this.isEdit() ? 'Editar tutores' : 'Novo tutores'));
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -39,15 +39,15 @@ export class TutorFormComponent implements OnInit, OnDestroy {
       const id = parseInt(idParam, 10);
       if (!isNaN(id)) {
         this.isEdit.set(true);
-        this.tutorId.set(id);
-        this.tutorFacade.loadTutorById(id);
-        this.tutorFacade.selectedTutor$.pipe(filter((t) => t != null), take(1)).subscribe((tutor) => {
-          if (tutor) {
-            this.nome = tutor.nome ?? '';
-            this.email = tutor.email ?? '';
-            this.telefone = tutor.telefone ?? '';
-            this.endereco = tutor.endereco ?? '';
-            this.cpf = tutor.cpf;
+        this.tutoresId.set(id);
+        this.tutoresFacade.loadtutoresById(id);
+        this.tutoresFacade.selectedtutores$.pipe(filter((t) => t != null), take(1)).subscribe((tutores) => {
+          if (tutores) {
+            this.nome = tutores.nome ?? '';
+            this.email = tutores.email ?? '';
+            this.telefone = tutores.telefone ?? '';
+            this.endereco = tutores.endereco ?? '';
+            this.cpf = tutores.cpf ?? undefined;
           }
         });
       }
@@ -56,12 +56,12 @@ export class TutorFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (!this.isEdit()) return;
-    this.tutorFacade.clearSelected();
+    this.tutoresFacade.clearSelected();
   }
 
   onSubmit(): void {
-    const id = this.tutorId();
-    const body: TutorCreateUpdate = {
+    const id = this.tutoresId();
+    const body: tutoresCreateUpdate = {
       nome: this.nome || undefined,
       email: this.email || undefined,
       telefone: this.telefone || undefined,
@@ -69,9 +69,9 @@ export class TutorFormComponent implements OnInit, OnDestroy {
       cpf: this.cpf,
     };
     if (id != null) {
-      this.tutorFacade.update(id, body);
+      this.tutoresFacade.update(id, body);
     } else {
-      this.tutorFacade.create(body);
+      this.tutoresFacade.create(body);
     }
   }
 }

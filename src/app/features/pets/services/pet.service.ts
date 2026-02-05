@@ -39,12 +39,15 @@ export class PetService {
     return this.http.put<Pet>(`${this.baseUrl}/${id}`, body);
   }
 
+  /**
+   * Envia a foto do pet para POST /v1/pets/{id}/fotos.
+   * Corpo (multipart/form-data): id do pet + arquivo da foto em binário.
+   */
   uploadPhoto(petId: number, file: File): Observable<{ url?: string; foto?: { url: string } }> {
+    const url = `${this.baseUrl}/${petId}/fotos`;
     const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<{ url?: string; foto?: { url: string } }>(
-      `${this.baseUrl}/${petId}/fotos`,
-      formData
-    );
+    formData.append('id', String(petId));
+    formData.append('foto', file, file.name);
+    return this.http.post<{ url?: string; foto?: { url: string } }>(url, formData);
   }
 }

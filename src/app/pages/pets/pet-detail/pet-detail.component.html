@@ -56,26 +56,28 @@
               </div>
               <div>
                 <dt class="text-gray-500">Idade</dt>
-                <dd class="font-medium text-gray-800">{{ pet.idade ? pet.idade + ' anos' : '—' }}</dd>
+                <dd class="font-medium text-gray-800">{{ pet.idade != null && pet.idade !== '' ? pet.idade + ' anos' : '—' }}</dd>
               </div>
-              @if (pet.tutor) {
+              @if (pet.tutores && pet.tutores.length > 0) {
                 <div class="mt-4 pt-4 border-t border-gray-100">
-                  <dt class="text-gray-500 mb-2">Tutor</dt>
-                  <dd class="font-medium text-gray-800">{{ pet.tutor.nome ?? 'Não informado' }}</dd>
-                  <dd class="text-gray-600 mt-1">
-                    @if (pet.tutor.telefone) {
-                      <span>{{ pet.tutor.telefone }}</span>
-                    }
-                    @if (pet.tutor.telefone && pet.tutor.email) {
-                      <span class="mx-1">·</span>
-                    }
-                    @if (pet.tutor.email) {
-                      <span>{{ pet.tutor.email }}</span>
-                    }
-                    @if (!pet.tutor.telefone && !pet.tutor.email) {
-                      <span>—</span>
-                    }
-                  </dd>
+                  <dt class="text-gray-500 mb-2">Tutores</dt>
+                  @for (t of pet.tutores; track t.id) {
+                    <dd class="font-medium text-gray-800 mt-1">{{ t.nome || 'Não informado' }}</dd>
+                    <dd class="text-gray-600 text-sm mt-0.5">
+                      @if (t.telefone) {
+                        <span>{{ t.telefone }}</span>
+                      }
+                      @if (t.telefone && t.email) {
+                        <span class="mx-1">·</span>
+                      }
+                      @if (t.email) {
+                        <span>{{ t.email }}</span>
+                      }
+                      @if (!t.telefone && !t.email) {
+                        <span>—</span>
+                      }
+                    </dd>
+                  }
                 </div>
               } @else {
                 <div class="mt-4 pt-4 border-t border-gray-100">
