@@ -1,59 +1,124 @@
-# SeletivoFrontend
+# PeTrack MT — Registro Público de Pets e Tutores
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.2.
+Frontend do sistema de cadastro e gerenciamento de animais de estimação e tutores (Estado de Mato Grosso).
 
-## Development server
+## Tecnologias
 
-To start a local development server, run:
+| Tecnologia | Uso |
+|------------|-----|
+| **Angular 21** | Framework SPA, rotas, formulários reativos |
+| **TypeScript 5.9** | Linguagem |
+| **RxJS 7** | Requisições HTTP e estado reativo |
+| **Tailwind CSS** | Estilos e layout responsivo |
+| **Lucide Angular** | Ícones |
+| **Karma + Jasmine** | Testes unitários |
+| **Node 22** | Build (Docker) |
+| **Nginx** | Servir o build em produção (Docker) |
+
+A API consumida está configurada em `src/app/core/api/api.constants.ts`.
+
+---
+
+## O que foi feito
+
+- **Página Início** acessível sem login: usuários não cadastrados podem ver a home (hero, estatísticas, funcionalidades, CTA).
+- **Pets Recentes** na home: exibição dos últimos 4 pets do endpoint de listagem (somente quando o usuário está logado).
+- **CRUD de Pets**: listagem paginada, busca por nome, cadastro, edição, exclusão e upload de foto.
+- **CRUD de Tutores**: listagem, cadastro, edição e vínculo/desvínculo de pets.
+- **Autenticação**: login, registro de conta, refresh de token e interceptor para envio do token nas requisições.
+- **Layout**: header responsivo, toasts e rotas com lazy loading.
+
+## O que pode melhorar
+
+- **Guards de rota**: proteger rotas como `/pets` e `/tutores` com guard de autenticação, redirecionando não logados para `/login`; manter apenas `/`, `/inicio`, `/login` e `/registro` públicas.
+- **Testes**: ampliar testes unitários (componentes e facades) e adicionar testes e2e para fluxos críticos (login, listagem, cadastro de pet).
+- **Tratamento de erros**: mensagens mais claras por tipo de erro (rede, 403, 404) e retry em falhas temporárias.
+- **Acessibilidade**: revisar labels, contraste e navegação por teclado (especialmente no header e formulários).
+- **SEO e meta tags**: título e descrição por rota para melhor indexação da página Início.
+- **Ordenação “mais recentes”**: se a API não ordenar por data de cadastro, solicitar parâmetro de ordenação ou tratar no front (ex.: ordenar por `id` desc) para garantir que “Pets Recentes” seja realmente os últimos cadastrados.
+
+---
+
+## Como rodar
+
+### Local (desenvolvimento)
+
+Requisitos: **Node.js** (recomendado LTS) e **npm**.
 
 ```bash
+npm install
+npm start
+```
+
+Ou com o CLI do Angular:
+
+```bash
+npm install
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Acesse **http://localhost:4200/**.
 
-## Code scaffolding
+### Docker
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Requisitos: **Docker** e **Docker Compose**.
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+**Com Docker Compose (recomendado):**
 
 ```bash
-ng generate --help
+docker compose up --build
 ```
 
-## Building
+- Aplicação: **http://localhost:8080**
+- Health check: **http://localhost:8080/health**
 
-To build the project run:
+**Apenas com Docker:**
 
 ```bash
-ng build
+docker build -t seletivo-frontend .
+docker run -p 8080:80 seletivo-frontend
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+A imagem faz build da aplicação Angular e serve os arquivos estáticos com Nginx. Detalhes em [DOCKER.md](./DOCKER.md).
 
-## Running unit tests
+---
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Testes
+
+```bash
+npm test
+```
+
+Ou:
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
+Os testes rodam com **Karma** e **Jasmine** (navegador). Para rodar uma vez e sair (útil em CI), use a configuração do projeto em `angular.json` (por exemplo `ng test --no-watch` se disponível).
 
-For end-to-end (e2e) testing, run:
+---
+
+## Build e deploy
+
+**Build de produção:**
 
 ```bash
-ng e2e
+npm run build
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Os arquivos ficam em `dist/seletivo-frontend/browser/`.
 
-## Additional Resources
+**Deploy:**
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **Opção 1 – Imagem Docker:** faça o build da imagem (`docker build -t seletivo-frontend .`), envie para um registro (Docker Hub, ECR, GCR, etc.) e execute o container na sua plataforma (Kubernetes, ECS, App Service, etc.). A app escuta na porta 80; use `/health`, `/live` e `/ready` para health checks.
+- **Opção 2 – Hospedagem estática:** faça `npm run build` e envie o conteúdo de `dist/seletivo-frontend/browser/` para um serviço de arquivos estáticos (Vercel, Netlify, S3 + CloudFront, Firebase Hosting, GitHub Pages, etc.). Configure o servidor para redirecionar todas as rotas para `index.html` (SPA).
+
+A URL da API é fixa no build; para trocar por ambiente (ex.: variável de ambiente), é necessário usar arquivos de environment ou substituição em tempo de build.
+
+---
+
+## Recursos
+
+- [Angular CLI](https://angular.dev/tools/cli)
+- [Angular Router](https://angular.dev/guide/routing)

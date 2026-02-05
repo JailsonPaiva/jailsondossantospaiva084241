@@ -84,17 +84,52 @@
         <lucide-icon name="arrow-right" [size]="18" />
       </a>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      @for (i of [1,2,3,4]; track i) {
-        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-          <div class="aspect-square bg-gray-200"></div>
-          <div class="p-3 space-y-2">
-            <div class="h-3 bg-gray-200 rounded w-3/4"></div>
-            <div class="h-3 bg-gray-100 rounded w-1/2"></div>
+    @if (recentPetsError()) {
+      <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+        {{ recentPetsError() }}
+      </div>
+    } @else if (recentPetsLoading()) {
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        @for (i of [1,2,3,4]; track i) {
+          <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 animate-pulse">
+            <div class="aspect-square bg-gray-200"></div>
+            <div class="p-3 space-y-2">
+              <div class="h-3 bg-gray-200 rounded w-3/4"></div>
+              <div class="h-3 bg-gray-100 rounded w-1/2"></div>
+            </div>
           </div>
+        }
+      </div>
+    } @else {
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        @for (pet of recentPets(); track trackByPetId($index, pet)) {
+          <a
+            [routerLink]="['/pets', pet.id]"
+            class="block bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
+          >
+            <div class="aspect-square bg-gray-100 overflow-hidden">
+              @if (pet.foto?.url) {
+                <img [src]="pet.foto?.url" [alt]="pet.nome" class="w-full h-full object-cover" />
+              } @else {
+                <div class="w-full h-full flex items-center justify-center text-petrack/40">
+                  <lucide-icon name="paw-print" [size]="48" />
+                </div>
+              }
+            </div>
+            <div class="p-3">
+              <p class="font-medium text-gray-800 truncate">{{ pet.nome ?? 'Nome não informado' }}</p>
+              <p class="text-sm text-gray-500 truncate">{{ pet.raca ?? 'Raça não informada' }}</p>
+            </div>
+          </a>
+        }
+      </div>
+      @if (!recentPetsLoading() && recentPets().length === 0) {
+        <div class="text-center py-8 text-gray-500">
+          <lucide-icon name="paw-print" class="mx-auto text-gray-300 mb-3" [size]="40" />
+          <p>Nenhum pet cadastrado ainda.</p>
         </div>
       }
-    </div>
+    }
   </div>
 </section>
 
