@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, shareReplay, finalize } from 'rxjs';
 import { API_BASE_URL, API_ENDPOINTS } from '../api/api.constants';
 import { ToastService } from '../services/toast.service';
 
@@ -22,12 +22,18 @@ export interface LoginResponse {
   access_token?: string;
   refreshToken?: string;
   refresh_token?: string;
+  /** Tempo de vida do access_token em segundos */
+  expires_in?: number;
+  /** Tempo de vida do refresh_token em segundos */
+  refresh_expires_in?: number;
   data?: {
     token?: string;
     accessToken?: string;
     access_token?: string;
     refreshToken?: string;
     refresh_token?: string;
+    expires_in?: number;
+    refresh_expires_in?: number;
   };
   [key: string]: unknown;
 }
@@ -47,9 +53,24 @@ function extractAccessToken(res: LoginResponse | null): string | null {
   return typeof raw === 'string' && raw.length > 0 ? raw : null;
 }
 
+/** Extrai expires_in (segundos) da resposta de login/refresh */
+function extractExpiresIn(res: LoginResponse | null): number | null {
+  if (!res || typeof res !== 'object') return null;
+  const raw =
+    res.expires_in ??
+    (res.data && typeof res.data === 'object' ? res.data.expires_in ?? null : null);
+  return typeof raw === 'number' && raw > 0 ? raw : null;
+}
+
 const TOKEN_KEY = 'petrack_token';
 const REFRESH_TOKEN_KEY = 'petrack_refresh_token';
+const TOKEN_EXPIRES_AT_KEY = 'petrack_token_expires_at';
 const USER_PHOTO_KEY = 'petrack_user_photo';
+
+/** Renovar o token com esta antecedência (em segundos) antes de expirar */
+const REFRESH_BUFFER_SECONDS = 60;
+/** Se a API não retornar expires_in, usar este valor (segundos) para agendar o refresh */
+const EXPIRES_IN_FALLBACK_SECONDS = 300;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -65,11 +86,18 @@ export class AuthService {
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
 
   private readonly toast = inject(ToastService);
+  private refreshTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  /** Evita múltiplas chamadas de refresh simultâneas (ex.: vários 401 ao mesmo tempo) */
+  private refreshInProgress$: Observable<LoginResponse | null> | null = null;
 
   constructor(
     private readonly http: HttpClient,
     private readonly router: Router
-  ) {}
+  ) {
+    if (this.getStoredToken() && this.getStoredRefreshToken()) {
+      this.initTokenRefreshSchedule();
+    }
+  }
 
   login(username: string, password: string): Observable<LoginResponse> {
     this.errorSignal.set(null);
@@ -99,6 +127,9 @@ export class AuthService {
           if (typeof refresh === 'string') {
             localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
           }
+          const expiresIn = extractExpiresIn(res) ?? EXPIRES_IN_FALLBACK_SECONDS;
+          this.setStoredTokenExpiresAt(Date.now() + expiresIn * 1000);
+          this.scheduleTokenRefresh(expiresIn);
           this.router.navigate([LOGIN_REDIRECT_URL]);
         }
         this.loadingSignal.set(false);
@@ -147,10 +178,13 @@ export class AuthService {
   }
 
   logout(): void {
+    this.clearRefreshSchedule();
+    this.refreshInProgress$ = null;
     this.tokenSignal.set(null);
     this.userPhotoSignal.set(null);
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRES_AT_KEY);
     localStorage.removeItem(USER_PHOTO_KEY);
     this.router.navigate(['/login']);
   }
@@ -173,16 +207,20 @@ export class AuthService {
   }
 
   /**
-   * Atualiza o access token usando PUT /autenticacao/refresh.
-   * Retorna a resposta em caso de sucesso; em falha retorna null (ou o observable completa em erro).
+   * Atualiza o access token usando o endpoint de refresh.
+   * Uma única chamada é feita por vez; requisições simultâneas reutilizam o mesmo observable.
    */
   refreshToken(): Observable<LoginResponse | null> {
-    const refreshToken = this.getStoredRefreshToken();
-    if (!refreshToken?.trim()) {
+    const refreshTokenValue = this.getStoredRefreshToken();
+    if (!refreshTokenValue?.trim()) {
       return of(null);
     }
+    if (this.refreshInProgress$) {
+      return this.refreshInProgress$;
+    }
     const url = `${API_BASE_URL}${API_ENDPOINTS.refresh}`;
-    return this.http.put<LoginResponse>(url, { refreshToken }).pipe(
+    const headers = { Authorization: `Bearer ${refreshTokenValue}` };
+    this.refreshInProgress$ = this.http.put<LoginResponse>(url, {}, { headers }).pipe(
       tap((res) => {
         const accessToken = extractAccessToken(res);
         if (accessToken) {
@@ -198,9 +236,63 @@ export class AuthService {
         if (typeof newRefresh === 'string') {
           localStorage.setItem(REFRESH_TOKEN_KEY, newRefresh);
         }
+        const expiresIn = extractExpiresIn(res) ?? EXPIRES_IN_FALLBACK_SECONDS;
+        this.setStoredTokenExpiresAt(Date.now() + expiresIn * 1000);
+        this.scheduleTokenRefresh(expiresIn);
       }),
-      catchError(() => of(null))
+      catchError(() => of(null)),
+      shareReplay(1),
+      finalize(() => {
+        this.refreshInProgress$ = null;
+      })
     );
+    return this.refreshInProgress$;
+  }
+
+  /**
+   * Agenda a renovação do token para REFRESH_BUFFER_SECONDS antes do vencimento.
+   */
+  private scheduleTokenRefresh(expiresInSeconds: number): void {
+    this.clearRefreshSchedule();
+    const delayMs = Math.max(0, (expiresInSeconds - REFRESH_BUFFER_SECONDS) * 1000);
+    this.refreshTimeoutId = setTimeout(() => {
+      this.refreshTimeoutId = null;
+      this.refreshToken().subscribe((res) => {
+        if (res == null) {
+          this.logout();
+        }
+      });
+    }, delayMs);
+  }
+
+  private clearRefreshSchedule(): void {
+    if (this.refreshTimeoutId != null) {
+      clearTimeout(this.refreshTimeoutId);
+      this.refreshTimeoutId = null;
+    }
+  }
+
+  /**
+   * Inicializa o agendamento de refresh ao carregar a aplicação (token já existente).
+   */
+  private initTokenRefreshSchedule(): void {
+    const expiresAt = this.getStoredTokenExpiresAt();
+    if (expiresAt == null) {
+      // Sessão antiga ou API não retornou expires_in: renovar agora para obter novos tokens e expiry
+      this.refreshToken().subscribe((res) => {
+        if (res == null) this.logout();
+      });
+      return;
+    }
+    const remainingMs = expiresAt - Date.now();
+    const remainingSeconds = Math.floor(remainingMs / 1000);
+    if (remainingSeconds <= 0) {
+      this.refreshToken().subscribe((res) => {
+        if (res == null) this.logout();
+      });
+      return;
+    }
+    this.scheduleTokenRefresh(remainingSeconds);
   }
 
   private getStoredToken(): string | null {
@@ -210,6 +302,18 @@ export class AuthService {
 
   private setStoredToken(token: string): void {
     localStorage.setItem(TOKEN_KEY, token);
+  }
+
+  private getStoredTokenExpiresAt(): number | null {
+    if (typeof localStorage === 'undefined') return null;
+    const raw = localStorage.getItem(TOKEN_EXPIRES_AT_KEY);
+    if (raw == null) return null;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : null;
+  }
+
+  private setStoredTokenExpiresAt(timestamp: number): void {
+    localStorage.setItem(TOKEN_EXPIRES_AT_KEY, String(timestamp));
   }
 
   private getStoredUserPhoto(): string | null {

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, combineLatest, map, tap, catchError, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, tap, catchError, of, switchMap } from 'rxjs';
 import { Pet, PetsPageResponse } from '../../../core/models/pet.model';
 import { PetService, PetCreateUpdate } from '../services/pet.service';
+import { tutoresService } from '../../tutores/services/tutor.service';
 
 const PAGE_SIZE = 10;
 
@@ -35,6 +36,7 @@ export class PetFacade {
 
   constructor(
     private readonly petService: PetService,
+    private readonly tutorService: tutoresService,
     private readonly router: Router
   ) {}
 
@@ -140,10 +142,25 @@ export class PetFacade {
     this.petService
       .create(body)
       .pipe(
+        switchMap((pet) => {
+          const tutorId = body.tutoresId;
+          if (tutorId != null) {
+            return this.tutorService.linkPet(tutorId, pet.id).pipe(
+              map(() => pet),
+              catchError((err) => {
+                this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao vincular tutor.');
+                return of(pet);
+              })
+            );
+          }
+          return of(pet);
+        }),
         tap((pet) => {
-          this.saveLoadingSubject.next(false);
-          this.loadPets();
-          this.router.navigate(['/pets', pet.id]);
+          if (pet) {
+            this.saveLoadingSubject.next(false);
+            this.loadPets();
+            this.router.navigate(['/pets', pet.id]);
+          }
         }),
         catchError((err) => {
           this.saveLoadingSubject.next(false);
@@ -160,11 +177,26 @@ export class PetFacade {
     this.petService
       .update(id, body)
       .pipe(
+        switchMap((pet) => {
+          const tutorId = body.tutoresId;
+          if (tutorId != null) {
+            return this.tutorService.linkPet(tutorId, id).pipe(
+              map(() => pet),
+              catchError((err) => {
+                this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao vincular tutor.');
+                return of(pet);
+              })
+            );
+          }
+          return of(pet);
+        }),
         tap((pet) => {
-          this.saveLoadingSubject.next(false);
-          this.selectedPetSubject.next(pet);
-          this.loadPets();
-          this.router.navigate(['/pets', id]);
+          if (pet) {
+            this.saveLoadingSubject.next(false);
+            this.selectedPetSubject.next(pet);
+            this.loadPets();
+            this.router.navigate(['/pets', id]);
+          }
         }),
         catchError((err) => {
           this.saveLoadingSubject.next(false);

@@ -48,8 +48,9 @@ export class tutoresService {
     return this.http.get<Pet[]>(`${this.baseUrl}/${tutoresId}/pets`);
   }
 
+  /** Vincula pet ao tutor: POST /v1/tutores/{id}/pets/{petId} */
   linkPet(tutoresId: number, petId: number): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/${tutoresId}/pets`, { petId });
+    return this.http.post(`${this.baseUrl}/${tutoresId}/pets/${petId}`, {});
   }
 
   unlinkPet(tutoresId: number, petId: number): Observable<void> {

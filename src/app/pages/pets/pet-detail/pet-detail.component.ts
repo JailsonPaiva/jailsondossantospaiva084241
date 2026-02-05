@@ -3,11 +3,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { PetFacade } from '../../../features/pets/facades/pet.facade';
+import { TelefoneMaskPipe } from '../../../core/pipes/telefone-mask.pipe';
 
 @Component({
   selector: 'app-pet-detail',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, LucideAngularModule],
+  imports: [RouterLink, AsyncPipe, LucideAngularModule, TelefoneMaskPipe],
   templateUrl: './pet-detail.component.html',
   styleUrl: './pet-detail.component.css',
 })

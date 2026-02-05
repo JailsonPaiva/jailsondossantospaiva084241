@@ -3,11 +3,13 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { PetFacade } from './pet.facade';
 import { PetService } from '../services/pet.service';
+import { tutoresService } from '../../tutores/services/tutor.service';
 import { Pet } from '../../../core/models/pet.model';
 
 describe('PetFacade', () => {
   let facade: PetFacade;
   let petServiceSpy: jasmine.SpyObj<PetService>;
+  let tutorServiceSpy: jasmine.SpyObj<tutoresService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   const mockPets: Pet[] = [
@@ -28,12 +30,15 @@ describe('PetFacade', () => {
   beforeEach(() => {
     petServiceSpy = jasmine.createSpyObj('PetService', ['getPets', 'getById', 'create', 'update', 'uploadPhoto']);
     petServiceSpy.getPets.and.returnValue(of(mockPageResponse));
+    tutorServiceSpy = jasmine.createSpyObj('tutoresService', ['linkPet', 'getById']);
+    tutorServiceSpy.linkPet.and.returnValue(of(undefined));
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
       providers: [
         PetFacade,
         { provide: PetService, useValue: petServiceSpy },
+        { provide: tutoresService, useValue: tutorServiceSpy },
         { provide: Router, useValue: routerSpy },
       ],
     });

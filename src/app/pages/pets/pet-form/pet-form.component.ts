@@ -3,9 +3,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
+import { Subject, Subscription, debounceTime, switchMap } from 'rxjs';
 import { filter, take } from 'rxjs';
 import { PetFacade } from '../../../features/pets/facades/pet.facade';
 import { PetCreateUpdate } from '../../../features/pets/services/pet.service';
+import { tutoresService } from '../../../features/tutores/services/tutor.service';
+import type { tutores } from '../../../core/models/tutor.model';
 
 @Component({
   selector: 'app-pet-form',
@@ -17,6 +20,10 @@ import { PetCreateUpdate } from '../../../features/pets/services/pet.service';
 export class PetFormComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly petFacade = inject(PetFacade);
+  private readonly tutoresService = inject(tutoresService);
+
+  private readonly tutorSearchSubject = new Subject<string>();
+  private tutorSearchSub?: Subscription;
 
   readonly error$ = this.petFacade.error$;
   readonly saveLoading$ = this.petFacade.saveLoading$;
@@ -26,14 +33,52 @@ export class PetFormComponent implements OnInit, OnDestroy {
   readonly petId = signal<number | null>(null);
 
   nome = '';
-  especie = '';
   raca = '';
   idade = '';
   tutoresId: number | undefined = undefined;
 
+  tutorSearchInput = '';
+  tutoresOptions: tutores[] = [];
+  tutoresLoading = false;
+  tutorDropdownOpen = false;
+  selectedTutor: tutores | null = null;
+
   readonly title = computed(() => (this.isEdit() ? 'Editar pet' : 'Novo pet'));
 
+  private loadTutorById(id: number): void {
+    this.tutoresService.getById(id).pipe(take(1)).subscribe({
+      next: (t) => {
+        this.selectedTutor = t;
+        this.tutorSearchInput = t.nome ?? '';
+      },
+      error: () => {
+        this.selectedTutor = null;
+        this.tutorSearchInput = '';
+      },
+    });
+  }
+
   ngOnInit(): void {
+    this.tutorSearchSub = this.tutorSearchSubject
+      .pipe(
+        debounceTime(300),
+        switchMap((nome) => {
+          this.tutoresLoading = true;
+          return this.tutoresService.gettutores({ nome: nome || undefined, size: 20 });
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          this.tutoresOptions = res?.content ?? [];
+          this.tutorDropdownOpen = true;
+          this.tutoresLoading = false;
+        },
+        error: () => {
+          this.tutoresOptions = [];
+          this.tutoresLoading = false;
+        },
+      });
+
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       const id = parseInt(idParam, 10);
@@ -44,26 +89,63 @@ export class PetFormComponent implements OnInit, OnDestroy {
         this.petFacade.selectedPet$.pipe(filter((p) => p != null), take(1)).subscribe((pet) => {
           if (pet) {
             this.nome = pet.nome ?? '';
-            this.especie = pet.especie ?? '';
             this.raca = pet.raca ?? '';
             this.idade = pet.idade != null ? String(pet.idade) : '';
             this.tutoresId = pet.tutoresId;
+            if (pet.tutoresId != null) this.loadTutorById(pet.tutoresId);
+            else if (pet.tutores?.length) {
+              const t = pet.tutores[0];
+              this.selectedTutor = t;
+              this.tutoresId = t.id;
+              this.tutorSearchInput = t.nome ?? '';
+            }
           }
         });
       }
     }
   }
 
+  onTutorSearchChange(value: string): void {
+    this.tutorSearchInput = value;
+    if (!value.trim()) {
+      this.tutoresOptions = [];
+      this.tutorDropdownOpen = false;
+      this.selectedTutor = null;
+      this.tutoresId = undefined;
+      return;
+    }
+    this.tutorSearchSubject.next(value.trim());
+  }
+
+  selectTutor(t: tutores): void {
+    this.selectedTutor = t;
+    this.tutoresId = t.id;
+    this.tutorSearchInput = t.nome ?? '';
+    this.tutorDropdownOpen = false;
+    this.tutoresOptions = [];
+  }
+
+  clearTutor(): void {
+    this.selectedTutor = null;
+    this.tutoresId = undefined;
+    this.tutorSearchInput = '';
+    this.tutorDropdownOpen = false;
+    this.tutoresOptions = [];
+  }
+
+  onTutorSearchBlur(): void {
+    setTimeout(() => (this.tutorDropdownOpen = false), 200);
+  }
+
   ngOnDestroy(): void {
-    if (!this.isEdit()) return;
-    this.petFacade.clearSelected();
+    this.tutorSearchSub?.unsubscribe();
+    if (this.isEdit()) this.petFacade.clearSelected();
   }
 
   onSubmit(): void {
     const id = this.petId();
     const body: PetCreateUpdate = {
       nome: this.nome || undefined,
-      especie: this.especie || undefined,
       raca: this.raca || undefined,
       idade: this.idade || undefined,
       tutoresId: this.tutoresId,

@@ -54,17 +54,6 @@
           />
         </div>
         <div>
-          <label for="especie" class="block text-sm font-medium text-gray-700 mb-1">Espécie</label>
-          <input
-            id="especie"
-            type="text"
-            [(ngModel)]="especie"
-            name="especie"
-            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
-            placeholder="Ex: Cão, Gato"
-          />
-        </div>
-        <div>
           <label for="raca" class="block text-sm font-medium text-gray-700 mb-1">Raça</label>
           <input
             id="raca"
@@ -86,16 +75,59 @@
             placeholder="Ex: 3"
           />
         </div>
-        <div>
-          <label for="tutoresId" class="block text-sm font-medium text-gray-700 mb-1">ID do tutores (opcional)</label>
-          <input
-            id="tutoresId"
-            type="number"
-            [(ngModel)]="tutoresId"
-            name="tutoresId"
-            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
-            placeholder="Número do ID do tutores"
-          />
+        <div class="relative">
+          <label for="tutorSearch" class="block text-sm font-medium text-gray-700 mb-1">Tutor (opcional)</label>
+          <div class="relative">
+            <input
+              id="tutorSearch"
+              type="text"
+              [ngModel]="tutorSearchInput"
+              (ngModelChange)="onTutorSearchChange($event)"
+              (blur)="onTutorSearchBlur()"
+              name="tutorSearch"
+              autocomplete="off"
+              class="w-full px-4 py-2.5 pr-20 rounded-xl border border-gray-200 focus:ring-2 focus:ring-petrack-light focus:border-petrack"
+              placeholder="Digite o nome do tutor para buscar"
+            />
+            @if (selectedTutor) {
+              <button
+                type="button"
+                (click)="clearTutor()"
+                class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                title="Limpar tutor"
+              >
+                <lucide-icon name="x" [size]="18" />
+              </button>
+            }
+          </div>
+          @if (tutoresLoading) {
+            <p class="text-xs text-gray-500 mt-1">Buscando...</p>
+          }
+          @if (tutorDropdownOpen && tutoresOptions.length > 0) {
+            <ul
+              class="absolute z-10 w-full mt-1 py-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-auto"
+            >
+              @for (t of tutoresOptions; track t.id) {
+                <li>
+                  <button
+                    type="button"
+                    (click)="selectTutor(t)"
+                    class="w-full text-left px-4 py-2.5 hover:bg-petrack-pale text-gray-800 text-sm"
+                  >
+                    <span class="font-medium">{{ t.nome }}</span>
+                    @if (t.telefone || t.email) {
+                      <span class="text-gray-500 text-xs block mt-0.5">{{ t.telefone || t.email }}</span>
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+          @if (tutorDropdownOpen && !tutoresLoading && tutorSearchInput.trim() && tutoresOptions.length === 0) {
+            <p class="absolute z-10 w-full mt-1 px-4 py-2 bg-white border border-gray-200 rounded-xl shadow text-sm text-gray-500">
+              Nenhum tutor encontrado.
+            </p>
+          }
         </div>
         <div class="pt-4 flex gap-3">
           <button

@@ -37,7 +37,7 @@
                 class="absolute bottom-3 right-3 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 shadow border border-gray-200 cursor-pointer hover:bg-gray-50"
               >
                 <lucide-icon name="camera" [size]="18" />
-                <span>Enviar foto</span>
+                <span>Alterar foto</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -51,8 +51,8 @@
             <h1 class="pet-name-hero">{{ pet.nome ?? 'Sem nome' }}</h1>
             <dl class="space-y-3 text-sm">
               <div>
-                <dt class="text-gray-500">Espécie / Raça</dt>
-                <dd class="font-medium text-gray-800">{{ pet.especie ?? pet.raca ?? '—' }}</dd>
+                <dt class="text-gray-500">Raça</dt>
+                <dd class="font-medium text-gray-800">{{ pet.raca ?? '—' }}</dd>
               </div>
               <div>
                 <dt class="text-gray-500">Idade</dt>
@@ -65,7 +65,7 @@
                     <dd class="font-medium text-gray-800 mt-1">{{ t.nome || 'Não informado' }}</dd>
                     <dd class="text-gray-600 text-sm mt-0.5">
                       @if (t.telefone) {
-                        <span>{{ t.telefone }}</span>
+                        <span>{{ t.telefone | telefoneMask }}</span>
                       }
                       @if (t.telefone && t.email) {
                         <span class="mx-1">·</span>
