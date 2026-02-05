@@ -22,6 +22,9 @@ RUN npm run build
 # ============================================
 FROM nginx:1.27-alpine AS runtime
 
+# wget necessário para o HEALTHCHECK (nginx:alpine não inclui por padrão)
+RUN apk add --no-cache wget
+
 # Remove configuração padrão do nginx
 RUN rm /etc/nginx/conf.d/default.conf
 
