@@ -23,6 +23,7 @@
   "private": true,
   "packageManager": "npm@11.4.2",
   "dependencies": {
+    "@angular-devkit/build-angular": "^21.1.2",
     "@angular/common": "^21.1.0",
     "@angular/compiler": "^21.1.0",
     "@angular/core": "^21.1.0",
@@ -37,9 +38,17 @@
     "@angular/build": "^21.1.2",
     "@angular/cli": "^21.1.2",
     "@angular/compiler-cli": "^21.1.0",
+    "@types/jasmine": "^6.0.0",
     "autoprefixer": "^10.4.24",
+    "jasmine-core": "^6.0.1",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.1",
+    "karma-jasmine": "^5.1.0",
+    "karma-jasmine-html-reporter": "^2.2.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "zone.js": "^0.16.0"
   }
 }

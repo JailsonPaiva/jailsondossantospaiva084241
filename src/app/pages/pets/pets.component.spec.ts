@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { LucideAngularModule, Search, Filter, Plus, PawPrint } from 'lucide-angular';
 import { BehaviorSubject } from 'rxjs';
 import { PetsComponent } from './pets.component';
 import { PetFacade } from '../../features/pets/facades/pet.facade';
@@ -38,8 +40,14 @@ describe('PetsComponent', () => {
     loadPetsSpy = spyOn(mockFacade, 'loadPets');
 
     await TestBed.configureTestingModule({
-      imports: [PetsComponent],
-      providers: [{ provide: PetFacade, useValue: mockFacade }],
+      imports: [
+        PetsComponent,
+        LucideAngularModule.pick({ Search, Filter, Plus, PawPrint }),
+      ],
+      providers: [
+        provideRouter([]),
+        { provide: PetFacade, useValue: mockFacade },
+      ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
