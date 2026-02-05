@@ -23,6 +23,9 @@ import {
   Camera,
   Save,
   Trash2,
+  Menu,
+  X,
+  Loader,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -55,6 +58,9 @@ export const appConfig: ApplicationConfig = {
       Camera,
       Save,
       Trash2,
+      Menu,
+      X,
+      Loader,
     })
     ),
   ],

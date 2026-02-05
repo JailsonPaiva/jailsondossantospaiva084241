@@ -1,6 +1,6 @@
 <div class="tutor-page flex flex-col min-h-[calc(100vh-5rem)]">
   <div class="flex-1 bg-petrack-pale">
-    <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
       <!-- Título e subtítulo -->
       <div class="mb-6">
         <h1 class="text-2xl sm:text-3xl font-bold text-petrack-dark">tutores</h1>
@@ -24,7 +24,7 @@
         </div>
         <a
             routerLink="/tutores/novo"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors shrink-0"
+            class="inline-flex items-center gap-2 px-4 py-3 sm:py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors shrink-0 min-h-[44px] items-center"
           >
             <lucide-icon name="plus" [size]="20" />
             Novo tutores
@@ -98,11 +98,11 @@
         <!-- Paginação server-side -->
         @if (!loading() && total() > 0) {
           <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-200 pt-6">
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-gray-600 text-center sm:text-left order-2 sm:order-1">
               Mostrando {{ paginationStart() }}–{{ paginationEnd() }} de {{ total() }} tutores
               <span class="text-gray-500 font-medium"> · Página {{ currentPageDisplay() }} de {{ totalPages() }}</span>
             </p>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center justify-center gap-2 order-1 sm:order-2">
               <button
                 type="button"
                 [disabled]="currentPageDisplay() <= 1"
@@ -162,10 +162,10 @@
       (click)="closeDeleteModal()"
     >
       <div
-        class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
+        class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden max-h-[85vh] flex flex-col"
         (click)="$event.stopPropagation()"
       >
-        <div class="p-6">
+        <div class="p-4 sm:p-6 overflow-y-auto">
           <div class="flex items-center gap-4 mb-4">
             <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center shrink-0">
               <lucide-icon name="trash-2" class="text-red-600" [size]="28" />
@@ -212,8 +212,8 @@
   }
 
   <!-- Footer -->
-  <footer class="bg-white border-t border-gray-200 py-10 mt-auto shrink-0">
-    <div class="max-w-6xl mx-auto px-4">
+  <footer class="bg-white border-t border-gray-200 py-8 sm:py-10 mt-auto shrink-0">
+    <div class="max-w-6xl mx-auto px-3 sm:px-4">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div class="flex items-center gap-3">
           <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-petrack shrink-0">

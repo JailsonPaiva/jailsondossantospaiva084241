@@ -1,17 +1,17 @@
-<header class="bg-white border-b border-petrack-light/30 shadow-sm">
-  <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-20">
+<header class="bg-white border-b border-petrack-light/30 shadow-sm sticky top-0 z-40">
+  <div class="max-w-6xl mx-auto px-3 sm:px-4 flex items-center justify-between h-14 sm:h-20">
     <!-- Logo + nome -->
-    <div class="flex items-center gap-3">
-      <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-petrack shrink-0">
-        <lucide-icon name="paw-print" class="text-white w-6 h-6" [size]="24" />
+    <a routerLink="/" class="flex items-center gap-2 sm:gap-3 min-w-0">
+      <div class="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-petrack shrink-0">
+        <lucide-icon name="paw-print" class="text-white w-5 h-5 sm:w-6 sm:h-6" [size]="24" />
       </div>
-      <div>
-        <span class="block text-lg font-semibold text-petrack-dark">PeTrack</span>
+      <div class="min-w-0 hidden min-[400px]:block">
+        <span class="block text-base sm:text-lg font-semibold text-petrack-dark truncate">PeTrack</span>
         <span class="block text-xs text-gray-500">Mato Grosso</span>
       </div>
-    </div>
+    </a>
 
-    <!-- Navegação central (página selecionada com destaque e hover) -->
+    <!-- Navegação desktop -->
     <nav class="hidden sm:flex items-center gap-1">
       <a
         routerLink="/"
@@ -25,11 +25,26 @@
       <a routerLink="/tutores" routerLinkActive="nav-link-active" class="nav-link">tutores</a>
     </nav>
 
-    <!-- Autenticado: foto + Sair | Não autenticado: Entrar (sem status Online) -->
-    <div class="flex items-center gap-3">
+    <!-- Direita: botão menu mobile + auth -->
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Hamburger (mobile) -->
+      <button
+        type="button"
+        (click)="toggleMobileMenu()"
+        class="sm:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-orange text-white hover:bg-orange-light transition-colors"
+        aria-label="Abrir menu"
+        [attr.aria-expanded]="mobileMenuOpen()"
+      >
+        @if (mobileMenuOpen()) {
+          <lucide-icon name="x" [size]="24" />
+        } @else {
+          <lucide-icon name="menu" [size]="24" />
+        }
+      </button>
+
       @if (auth.isAuthenticated()) {
         <div
-          class="w-9 h-9 rounded-full border-2 border-petrack/20 overflow-hidden shrink-0 flex items-center justify-center bg-petrack-light"
+          class="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-petrack/20 overflow-hidden shrink-0 flex items-center justify-center bg-petrack-light"
           aria-hidden="true"
         >
           @if (auth.userPhoto(); as photoUrl) {
@@ -41,7 +56,7 @@
         <button
           type="button"
           (click)="logout()"
-          class="px-4 py-2 rounded-lg bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors"
+          class="hidden sm:inline-flex px-4 py-2 rounded-lg bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors"
         >
           Sair
         </button>
@@ -49,11 +64,61 @@
         <a
           routerLink="/login"
           routerLinkActive="bg-petrack-dark"
-          class="px-4 py-2 rounded-lg bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors"
+          class="hidden sm:inline-flex px-4 py-2 rounded-lg bg-petrack text-white font-medium hover:bg-petrack-dark transition-colors"
         >
           Entrar
         </a>
       }
     </div>
   </div>
+
+  <!-- Drawer menu mobile -->
+  @if (mobileMenuOpen()) {
+    <div
+      class="fixed inset-0 top-14 sm:top-20 z-30 bg-black/40 sm:hidden"
+      (click)="closeMobileMenu()"
+      aria-hidden="true"
+    ></div>
+    <nav
+      class="fixed top-14 right-0 bottom-0 left-0 sm:hidden z-30 bg-white border-t border-petrack-light/30 shadow-xl overflow-y-auto"
+      aria-label="Menu principal"
+    >
+      <div class="p-4 flex flex-col gap-1">
+        <a
+          routerLink="/"
+          routerLinkActive="nav-link-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-link-mobile"
+          (click)="closeMobileMenu()"
+        >
+          Início
+        </a>
+        <a routerLink="/pets" routerLinkActive="nav-link-active" class="nav-link-mobile" (click)="closeMobileMenu()">
+          Pets
+        </a>
+        <a routerLink="/tutores" routerLinkActive="nav-link-active" class="nav-link-mobile" (click)="closeMobileMenu()">
+          Tutores
+        </a>
+        @if (auth.isAuthenticated()) {
+          <hr class="my-2 border-gray-200" />
+          <button
+            type="button"
+            (click)="logout()"
+            class="nav-link-mobile text-left w-full rounded-lg bg-red-50 text-red-700 hover:bg-red-100"
+          >
+            Sair
+          </button>
+        } @else {
+          <hr class="my-2 border-gray-200" />
+          <a
+            routerLink="/login"
+            (click)="closeMobileMenu()"
+            class="nav-link-mobile text-center rounded-lg bg-petrack text-white font-medium py-3"
+          >
+            Entrar
+          </a>
+        }
+      </div>
+    </nav>
+  }
 </header>

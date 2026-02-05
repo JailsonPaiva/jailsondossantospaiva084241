@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../core/auth/auth.service';
@@ -12,8 +12,18 @@ import { AuthService } from '../../core/auth/auth.service';
 })
 export class HeaderComponent {
   readonly auth = inject(AuthService);
+  readonly mobileMenuOpen = signal(false);
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((v) => !v);
+  }
 
   logout(): void {
     this.auth.logout();
+    this.closeMobileMenu();
   }
 }

@@ -1,5 +1,5 @@
 <div class="login-page flex flex-col min-h-[calc(100vh-5rem)]">
-<div class="flex flex-col items-center justify-center flex-1 px-4 py-12">
+<div class="flex flex-col items-center justify-center flex-1 px-3 sm:px-4 py-8 sm:py-12">
   <!-- Ícone + Título + Subtítulo -->
   <div class="flex flex-col items-center mb-8">
     <div class="flex items-center justify-center w-20 h-20 rounded-2xl bg-petrack mb-4">
@@ -10,7 +10,7 @@
   </div>
 
   <!-- Card do formulário -->
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100 p-8 relative">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg border border-gray-100 p-5 sm:p-8 relative">
     @if (auth.isLoading()) {
       <div class="login-loading-overlay" aria-busy="true" aria-live="polite">
         <div class="login-loading-spinner"></div>
@@ -98,8 +98,8 @@
 </div>
 
 <!-- Footer (sempre visível no carregamento) -->
-<footer class="bg-white border-t border-gray-200 py-10 mt-auto shrink-0">
-  <div class="max-w-6xl mx-auto px-4">
+<footer class="bg-white border-t border-gray-200 py-8 sm:py-10 mt-auto shrink-0">
+  <div class="max-w-6xl mx-auto px-3 sm:px-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
       <div class="flex items-center gap-3">
         <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-petrack shrink-0">

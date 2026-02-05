@@ -2,11 +2,23 @@
   position: fixed;
   top: 1rem;
   right: 1rem;
+  left: 1rem;
   z-index: 9999;
   max-width: 24rem;
+  margin-left: auto;
+  margin-right: auto;
   border-radius: 0.75rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   animation: toast-in 0.3s ease-out;
+}
+
+@media (min-width: 640px) {
+  .toast {
+    left: auto;
+    right: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
 
 .toast-content {
