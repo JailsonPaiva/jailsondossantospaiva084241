@@ -17,6 +17,7 @@ export class PetFacade {
   private readonly currentPageSubject = new BehaviorSubject<number>(0);
   private readonly selectedPetSubject = new BehaviorSubject<Pet | null>(null);
   private readonly saveLoadingSubject = new BehaviorSubject<boolean>(false);
+  private readonly deleteLoadingSubject = new BehaviorSubject<boolean>(false);
 
   readonly list$ = this.listSubject.asObservable();
   readonly loading$ = this.loadingSubject.asObservable();
@@ -30,6 +31,7 @@ export class PetFacade {
   readonly currentPage$ = this.currentPageSubject.asObservable();
   readonly selectedPet$ = this.selectedPetSubject.asObservable();
   readonly saveLoading$ = this.saveLoadingSubject.asObservable();
+  readonly deleteLoading$ = this.deleteLoadingSubject.asObservable();
 
   private _searchTerm = '';
   private _currentPage = 0;
@@ -222,6 +224,28 @@ export class PetFacade {
         }),
         catchError((err) => {
           this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao enviar foto.');
+          return of(null);
+        })
+      )
+      .subscribe();
+  }
+
+  /** Exclui o pet (DELETE /v1/pets/{id}) e redireciona para /pets. */
+  deletePet(id: number): void {
+    this.errorSubject.next(null);
+    this.deleteLoadingSubject.next(true);
+    this.petService
+      .delete(id)
+      .pipe(
+        tap(() => {
+          this.deleteLoadingSubject.next(false);
+          this.selectedPetSubject.next(null);
+          this.loadPets();
+          this.router.navigate(['/pets']);
+        }),
+        catchError((err) => {
+          this.deleteLoadingSubject.next(false);
+          this.errorSubject.next(err?.error?.message ?? err?.message ?? 'Erro ao excluir pet.');
           return of(null);
         })
       )

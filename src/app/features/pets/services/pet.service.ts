@@ -39,6 +39,11 @@ export class PetService {
     return this.http.put<Pet>(`${this.baseUrl}/${id}`, body);
   }
 
+  /** Exclui o pet: DELETE /v1/pets/{id} */
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
   /**
    * Envia a foto do pet para POST /v1/pets/{id}/fotos.
    * Corpo (multipart/form-data): id do pet + arquivo da foto em binário.

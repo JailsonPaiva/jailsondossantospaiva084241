@@ -60,39 +60,67 @@
               </div>
               @if (pet.tutores && pet.tutores.length > 0) {
                 <div class="mt-4 pt-4 border-t border-gray-100">
-                  <dt class="text-gray-500 mb-2">Tutores</dt>
-                  @for (t of pet.tutores; track t.id) {
-                    <dd class="font-medium text-gray-800 mt-1">{{ t.nome || 'Não informado' }}</dd>
-                    <dd class="text-gray-600 text-sm mt-0.5">
-                      @if (t.telefone) {
-                        <span>{{ t.telefone | telefoneMask }}</span>
-                      }
-                      @if (t.telefone && t.email) {
-                        <span class="mx-1">·</span>
-                      }
-                      @if (t.email) {
-                        <span>{{ t.email }}</span>
-                      }
-                      @if (!t.telefone && !t.email) {
-                        <span>—</span>
-                      }
-                    </dd>
-                  }
+                  <h2 class="text-lg font-semibold text-petrack-dark mb-4">Tutores vinculados</h2>
+                  <ul class="space-y-3">
+                    @for (t of pet.tutores; track t.id) {
+                      <li
+                        class="flex items-center justify-between gap-4 p-3 rounded-xl border border-gray-100 hover:bg-gray-50"
+                      >
+                        <a [routerLink]="['/tutores', t.id]" class="min-w-0 flex-1 flex items-center gap-3">
+                          @if (t.foto?.url) {
+                            <img [src]="t.foto?.url" [alt]="t.nome" class="w-12 h-12 rounded-full object-cover shrink-0" />
+                          } @else {
+                            <div class="w-12 h-12 rounded-full bg-petrack-light flex items-center justify-center shrink-0">
+                              <lucide-icon name="user" class="text-petrack" [size]="24" />
+                            </div>
+                          }
+                          <div class="min-w-0">
+                            <p class="font-medium text-gray-800 truncate">{{ t.nome }}</p>
+                            <p class="text-sm text-gray-500">
+                              @if (t.telefone) {
+                                <span>{{ t.telefone | telefoneMask }}</span>
+                              }
+                              @if (t.telefone && t.email) {
+                                <span class="mx-1">·</span>
+                              }
+                              @if (t.email) {
+                                <span>{{ t.email }}</span>
+                              }
+                              @if (!t.telefone && !t.email) {
+                                <span>—</span>
+                              }
+                            </p>
+                          </div>
+                        </a>
+                      </li>
+                    }
+                  </ul>
                 </div>
               } @else {
                 <div class="mt-4 pt-4 border-t border-gray-100">
+                  <h2 class="text-lg font-semibold text-petrack-dark mb-4">Tutores vinculados</h2>
                   <p class="text-gray-500 text-sm italic">Este pet não possui tutor vinculado.</p>
                 </div>
               }
             </dl>
             @if (petId !== null) {
-              <a
-                [routerLink]="['/pets', petId, 'editar']"
-                class="mt-6 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark"
-              >
-                <lucide-icon name="save" [size]="18" />
-                Editar pet
-              </a>
+              <div class="mt-6 flex flex-wrap gap-3">
+                <a
+                  [routerLink]="['/pets', petId, 'editar']"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-petrack text-white font-medium hover:bg-petrack-dark"
+                >
+                  <lucide-icon name="save" [size]="18" />
+                  Editar pet
+                </a>
+                <button
+                  type="button"
+                  (click)="openDeleteModal(pet)"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 text-red-600 font-medium hover:bg-red-50"
+                >
+                  <lucide-icon name="trash-2" [size]="18" />
+                  Excluir
+                </button>
+              </div>
             }
           </div>
         </div>
@@ -100,6 +128,77 @@
         <div class="text-center py-12 text-gray-500">
           <p>Pet não encontrado.</p>
           <a routerLink="/pets" class="text-petrack hover:underline mt-2 inline-block">Voltar à listagem</a>
+        </div>
+      }
+
+      <!-- Modal de confirmação de exclusão -->
+      @if (petToDelete(); as pet) {
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-pet-delete-title"
+          (click)="closeDeleteModal()"
+        >
+          <div
+            class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
+            (click)="$event.stopPropagation()"
+          >
+            <div class="p-6">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                  <lucide-icon name="trash-2" class="text-red-600" [size]="28" />
+                </div>
+                <div>
+                  <h2 id="modal-pet-delete-title" class="text-xl font-semibold text-gray-900">Excluir pet?</h2>
+                  <p class="text-sm text-gray-500 mt-0.5">Esta ação não pode ser desfeita.</p>
+                </div>
+              </div>
+              <p class="text-gray-600 text-sm mb-4">
+                Deseja realmente excluir o pet abaixo?
+              </p>
+              <div class="bg-gray-50 rounded-xl p-4 space-y-2 mb-6">
+                @if (pet.foto?.url) {
+                  <img [src]="pet.foto?.url" [alt]="pet.nome ?? 'Pet'" class="w-12 h-12 rounded-lg object-cover mb-2" />
+                }
+                <p class="font-medium text-gray-900">{{ pet.nome ?? 'Sem nome' }}</p>
+                @if (pet.raca) {
+                  <p class="text-sm text-gray-600"><span class="text-gray-500">Raça:</span> {{ pet.raca }}</p>
+                }
+                @if (pet.especie) {
+                  <p class="text-sm text-gray-600"><span class="text-gray-500">Espécie:</span> {{ pet.especie }}</p>
+                }
+                @if (pet.idade != null && pet.idade !== '') {
+                  <p class="text-sm text-gray-600"><span class="text-gray-500">Idade:</span> {{ pet.idade }} anos</p>
+                }
+                @if (!pet.raca && !pet.especie && (pet.idade == null || pet.idade === '')) {
+                  <p class="text-sm text-gray-500">Sem raça, espécie ou idade cadastrados</p>
+                }
+              </div>
+              <div class="flex gap-3 justify-end">
+                <button
+                  type="button"
+                  (click)="closeDeleteModal()"
+                  [disabled]="(deleteLoading$ | async) ?? false"
+                  class="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  (click)="confirmDelete()"
+                  [disabled]="(deleteLoading$ | async) ?? false"
+                  class="px-4 py-2.5 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 disabled:opacity-50"
+                >
+                  @if (deleteLoading$ | async) {
+                    Excluindo…
+                  } @else {
+                    Excluir
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       }
     </div>

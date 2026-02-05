@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { PetFacade } from '../../../features/pets/facades/pet.facade';
 import { TelefoneMaskPipe } from '../../../core/pipes/telefone-mask.pipe';
+import type { Pet } from '../../../core/models/pet.model';
 
 @Component({
   selector: 'app-pet-detail',
@@ -19,6 +20,10 @@ export class PetDetailComponent implements OnInit, OnDestroy {
   readonly selectedPet$ = this.petFacade.selectedPet$;
   readonly loading$ = this.petFacade.loading$;
   readonly error$ = this.petFacade.error$;
+  readonly deleteLoading$ = this.petFacade.deleteLoading$;
+
+  /** Pet selecionado para exclusão (null = modal fechado) */
+  readonly petToDelete = signal<Pet | null>(null);
 
   private _petId: number | null = null;
 
@@ -46,5 +51,21 @@ export class PetDetailComponent implements OnInit, OnDestroy {
       this.petFacade.uploadPhoto(this._petId, file);
     }
     input.value = '';
+  }
+
+  openDeleteModal(pet: Pet): void {
+    this.petToDelete.set(pet);
+  }
+
+  closeDeleteModal(): void {
+    this.petToDelete.set(null);
+  }
+
+  confirmDelete(): void {
+    const pet = this.petToDelete();
+    if (pet?.id != null) {
+      this.petFacade.deletePet(pet.id);
+      this.closeDeleteModal();
+    }
   }
 }
