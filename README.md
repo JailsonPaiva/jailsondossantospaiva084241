@@ -19,6 +19,30 @@ A API consumida está configurada em `src/app/core/api/api.constants.ts`.
 
 ---
 
+## Interface do sistema
+
+Algumas telas do sistema para visualização geral:
+
+### Página inicial e login
+
+| Início | Login |
+|--------|-------|
+| ![Página inicial](docs/inicio.png) | ![Login](docs/login.png) |
+
+### Pets
+
+| Listagem (desktop) | Listagem (mobile) | Detalhes do pet | Edição do pet |
+|--------------------|-------------------|-----------------|---------------|
+| ![Pets](docs/pets.png) | ![Pets mobile](docs/pets%20mobile.png) | ![Pet detalhes](docs/pet%20detalhes.png) | ![Pet edição](docs/pet%20edicao.png) |
+
+### Tutores
+
+| Listagem (desktop) | Listagem (mobile) | Detalhes do tutor | Edição do tutor |
+|--------------------|-------------------|-------------------|-----------------|
+| ![Tutores](docs/tutores.png) | ![Tutores mobile](docs/tutores%20mobile.png) | ![Tutor detalhes](docs/tutor%20detalhes.png) | ![Tutor edição](docs/tutor%20edicao.png) |
+
+---
+
 ## O que foi feito
 
 - **Página Início** acessível sem login: usuários não cadastrados podem ver a home (hero, estatísticas, funcionalidades, CTA).
